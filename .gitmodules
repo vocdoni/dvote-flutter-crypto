@@ -1,0 +1,3 @@
+[submodule "rust/za"]
+	path = rust/za
+	url = https://github.com/adria0/za.git

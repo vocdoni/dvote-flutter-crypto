@@ -12,3 +12,9 @@ crate-type = ["staticlib", "cdylib"]
 poseidon-rs = { git = "https://github.com/arnaucube/poseidon-rs" }
 hex = "0.4.2"
 base64 = "0.12.0"
+za-prover = { path = "./za/prover" }
+
+#za-compiler = { path = "./za/compiler" }
+#libc = "0.2.61"
+#stderrlog = "0.4.1"
+
