@@ -1,296 +1,201 @@
-use ethkey::prelude::*;
-use rustc_hex::ToHex;
-// use rustc_hex::{FromHex, ToHex};
+use poseidon_rs::Poseidon;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use tiny_keccak::{Hasher, Keccak};
+// use rustc_hex::ToHex;
 
-pub enum Error {
-    InvalidPrivateKey,
-    InvalidPublicKey,
-    SigningError,
-    InvalidSignature,
-}
-
-// PUBLIC FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTED FUNCTIONS FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////
 
 #[no_mangle]
-pub extern "C" fn sign_message(
-    msg_ptr: *const c_char,
-    hex_priv_key_ptr: *const c_char,
-) -> *mut c_char {
-    let message_str = unsafe { CStr::from_ptr(msg_ptr) }
+pub extern "C" fn digest_string_claim(str_claim_ptr: *const c_char) -> *mut c_char {
+    let str_claim = unsafe { CStr::from_ptr(str_claim_ptr) }
         .to_str()
-        .expect("Invalid message string");
-    let hex_key_str = unsafe { CStr::from_ptr(hex_priv_key_ptr) }
-        .to_str()
-        .expect("Invalid hex key string");
+        .expect("Invalid str_claim string");
 
-    let key_bytes = &mut [0_u8; 32];
+    let hex_result = digest_string_claim_inner(str_claim);
 
-    match hex::decode_to_slice(hex_key_str, key_bytes) {
-        Ok(_) => {}
-        Err(_) => {
-            return CString::new("Error: Invalid hex private key".to_owned())
-                .unwrap()
-                .into_raw()
-        }
-    }
-
-    let signature = match sign_msg(message_str.as_bytes(), key_bytes) {
-        Ok(sig) => sig,
-        Err(Error::InvalidPrivateKey) => "Error: Invalid private key".to_owned(),
-        Err(_) => "Error: Could not sign the message".to_owned(),
-    };
-
-    CString::new(signature).unwrap().into_raw()
+    CString::new(hex_result).unwrap().into_raw()
 
     // NOTE: Caller must free() the resulting pointer
 }
 
 #[no_mangle]
-pub extern "C" fn recover_signature(
-    signature_ptr: *const c_char,
-    msg_ptr: *const c_char,
-) -> *mut c_char {
-    let signature_ptr = unsafe { CStr::from_ptr(signature_ptr) }
+pub extern "C" fn digest_hex_claim(hex_claim_ptr: *const c_char) -> *mut c_char {
+    let hex_claim = unsafe { CStr::from_ptr(hex_claim_ptr) }
         .to_str()
-        .expect("Invalid signature string");
-    let message_str = unsafe { CStr::from_ptr(msg_ptr) }
-        .to_str()
-        .expect("Invalid message string");
+        .expect("Invalid hex_claim string");
 
-    let signature_bytes = &mut [0_u8; 32 + 32 + 1];
-    match hex::decode_to_slice(signature_ptr, signature_bytes) {
-        Ok(_) => {}
-        Err(_) => {
-            return CString::new("Error: Invalid hex signature".to_owned())
-                .unwrap()
-                .into_raw()
-        }
-    }
+    let hex_result = digest_hex_claim_inner(hex_claim);
 
-    let public_key = match recover_sig(signature_bytes, message_str.as_bytes()) {
-        Ok(sig) => sig,
-        Err(_) => "Error: Could not verify the message".to_owned(),
-    };
-
-    CString::new(public_key).unwrap().into_raw()
+    CString::new(hex_result).unwrap().into_raw()
 
     // NOTE: Caller must free() the resulting pointer
 }
 
-#[no_mangle]
-pub extern "C" fn is_valid_signature(
-    signature_ptr: *const c_char,
-    msg_ptr: *const c_char,
-    public_key_ptr: *const c_char,
-) -> bool {
-    let signature_str = unsafe { CStr::from_ptr(signature_ptr) }
-        .to_str()
-        .expect("Invalid signature string");
-    let message_str = unsafe { CStr::from_ptr(msg_ptr) }
-        .to_str()
-        .expect("Invalid message string");
-    let mut hex_pub_key_str = unsafe { CStr::from_ptr(public_key_ptr) }
-        .to_str()
-        .expect("Invalid hex public key string");
-
-    // SKIP "0x04"
-    if hex_pub_key_str.len() == 132 && &hex_pub_key_str[0..4] == "0x04" {
-        hex_pub_key_str = &hex_pub_key_str[4..];
-    } else if hex_pub_key_str.len() == 130 && &hex_pub_key_str[0..4] == "04" {
-        hex_pub_key_str = &hex_pub_key_str[2..];
-    } else if hex_pub_key_str.len() != 128 {
-        println!(
-            "Error: Invalid public key supplied: {}\nPublic keys are expected to be a hex string in the expanded format. ",
-            hex_pub_key_str
-        );
-        return false;
-    }
-
-    let public_key_bytes = &mut [0_u8; 64];
-    match hex::decode_to_slice(hex_pub_key_str, public_key_bytes) {
-        Ok(_) => {}
-        Err(_) => return false,
-    }
-
-    let signature_bytes = &mut [0_u8; 32 + 32 + 1];
-    match hex::decode_to_slice(signature_str, signature_bytes) {
-        Ok(_) => {}
-        Err(_) => return false,
-    }
-
-    let valid = match is_valid_sig(signature_bytes, message_str.as_bytes(), public_key_bytes) {
-        Ok(v) => v,
-        Err(Error::SigningError) => false,
-        Err(_) => false,
-    };
-
-    valid
-
-    // NOTE: Caller must free() the resulting pointer
-}
-
+///////////////////////////////////////////////////////////////////////////////
 // INTERNAL HANDLERS
+///////////////////////////////////////////////////////////////////////////////
 
-fn sign_msg<'a>(message: &[u8], priv_key: &[u8]) -> Result<String, Error> {
-    // hash the message
-    let mut keccak256 = Keccak::v256();
-    let mut message_hash = [0u8; 32];
-    keccak256.update(&message);
-    keccak256.finalize(&mut message_hash);
+fn digest_string_claim_inner(claim: &str) -> String {
+    // Convert into a byte array
+    let claim_bytes = claim.as_bytes().to_vec();
 
-    // sign the keccak256 hash of the message
-    let key = match SecretKey::from_raw(priv_key) {
+    // Hash
+    let poseidon = Poseidon::new();
+    let hash = match poseidon.hash_bytes(claim_bytes) {
         Ok(v) => v,
-        Err(_) => return Err(Error::InvalidPrivateKey),
+        Err(reason) => {
+            return format!("ERROR: {}", reason);
+        }
     };
-    let signature = match key.sign(&message_hash) {
+
+    // Convert to base64
+    let hex_hash = format!("{:064x}", hash); // pad the 32 bytes to the right
+    let claim_bytes = match hex::decode(&hex_hash) {
         Ok(v) => v,
-        Err(_) => return Err(Error::SigningError),
+        Err(err) => {
+            return format!(
+                "ERROR: The given claim ({}) is not a valid hex string - {}",
+                hex_hash, err
+            );
+        }
     };
-    // println!("{:?}", signature);
-
-    let str_r = signature.r.to_hex::<String>();
-    let str_s = signature.s.to_hex::<String>();
-    let str_v = (&[signature.v] as &[u8]).to_hex::<String>();
-
-    // TODO: Covert R/S/V into a padded hex string
-    Ok(format!("{}{}{}", str_r, str_s, str_v).to_owned())
+    base64::encode(claim_bytes)
 }
 
-fn recover_sig(signature: &[u8], message: &[u8]) -> Result<String, Error> {
-    // hash the message
-    let mut keccak256 = Keccak::v256();
-    let mut message_hash = [0u8; 32];
-    keccak256.update(&message);
-    keccak256.finalize(&mut message_hash);
-
-    // Import the signature
-    let mut _r: [u8; 32] = [0_u8; 32];
-    let mut _s: [u8; 32] = [0_u8; 32];
-    _r.copy_from_slice(&signature[0..32]);
-    _s.copy_from_slice(&signature[32..64]);
-    let mut _v: u8 = signature[64];
-
-    let given_sig = Signature {
-        r: _r,
-        s: _s,
-        v: _v,
+fn digest_hex_claim_inner(hex_claim: &str) -> String {
+    // Decode hex into a byte array
+    let hex_claim_clean: &str = if hex_claim.starts_with("0x") {
+        &hex_claim[2..] // skip 0x
+    } else {
+        hex_claim
     };
-    // println!(
-    //     " => MSG: {}, sig: {:?}",
-    //     message.to_hex::<String>(),
-    //     given_sig
-    // );
-
-    let public_key = match given_sig.recover(message) {
+    let claim_bytes = match hex::decode(hex_claim_clean) {
         Ok(v) => v,
-        Err(_) => return Err(Error::InvalidSignature),
+        Err(err) => {
+            return format!(
+                "ERROR: The given claim ({}) is not a valid hex string - {}",
+                hex_claim, err
+            );
+        }
     };
-    // println!(" => 3");
 
-    let str_pubkey = "0x04".to_owned() + &public_key.bytes().to_hex::<String>();
+    // Hash
+    let poseidon = Poseidon::new();
+    let hash = match poseidon.hash_bytes(claim_bytes) {
+        Ok(v) => v,
+        Err(reason) => {
+            return format!("ERROR: {}", reason);
+        }
+    };
 
-    // public_key
-    Ok(str_pubkey)
+    // Convert to base64
+    let hex_hash = format!("{:064x}", hash); // pad the 32 bytes to the right
+    let claim_bytes = match hex::decode(&hex_hash) {
+        Ok(v) => v,
+        Err(err) => {
+            return format!(
+                "ERROR: The given claim ({}) is not a valid hex string - {}",
+                hex_hash, err
+            );
+        }
+    };
+    base64::encode(claim_bytes)
 }
 
-fn is_valid_sig(signature: &[u8], message: &[u8], public_key: &[u8]) -> Result<bool, Error> {
-    // hash the message
-    let mut keccak256 = Keccak::v256();
-    let mut message_hash = [0u8; 32];
-    keccak256.update(&message);
-    keccak256.finalize(&mut message_hash);
-
-    let pub_key = PublicKey::from_slice(public_key).unwrap();
-
-    // Import the signature
-    let mut _r: [u8; 32] = [0_u8; 32];
-    let mut _s: [u8; 32] = [0_u8; 32];
-    let mut _v: u8 = signature[65];
-    _r.copy_from_slice(&signature[0..32]);
-    _s.copy_from_slice(&signature[32..64]);
-
-    let given_sig = Signature {
-        r: _r,
-        s: _s,
-        v: _v,
-    };
-
-    // verify the signature
-    let valid = match pub_key.verify(&given_sig, &message) {
-        Ok(v) => v,
-        Err(_) => return Err(Error::InvalidSignature),
-    };
-    Ok(valid)
-}
-
-// FREE
+///////////////////////////////////////////////////////////////////////////////
+// STRING FREE
+///////////////////////////////////////////////////////////////////////////////
 
 #[no_mangle]
-pub extern "C" fn free_cstr(s: *mut c_char) {
+pub extern "C" fn free_cstr(string: *mut c_char) {
     unsafe {
-        if s.is_null() {
+        if string.is_null() {
             return;
         }
-        CString::from_raw(s)
+        CString::from_raw(string)
     };
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// TESTS
+///////////////////////////////////////////////////////////////////////////////
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rustc_hex::{FromHex, ToHex};
 
     #[test]
-    fn should_sign() {
-        let message = "Hello world".as_bytes();
-        let secret: Vec<u8> = "4d5db4107d237df6a3d58ee5f70ae63d73d7658d4026f2eefd2f204c81682cb7"
-            .from_hex()
-            .unwrap();
+    fn should_hash_strings() {
+        let str_claim = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+        let hex_hash = digest_string_claim_inner(str_claim);
 
-        let signature = match sign_msg(message, &secret) {
-            Ok(v) => v,
-            Err(_) => {
-                return assert_eq!("", "Signing failed");
-            }
-        };
-
-        assert_eq!(&signature, "20e5910c20f6cef97cfde0a489c3499f36f22213066b2c0fcdf7ec7d75813e6a58adcf0ac53418f0cf185b9ce19745ad16ae471c53d9d07608d3600915a429a400");
+        assert_eq!(hex_hash, "I2rUN6QzXXAgyyx/B/7CgLYH1YrIXtsIb61lXON1Xok=");
     }
 
     #[test]
-    fn should_recover() {
-        let message = "Hello world".as_bytes();
-        let secret: Vec<u8> = "4d5db4107d237df6a3d58ee5f70ae63d73d7658d4026f2eefd2f204c81682cb7"
-            .from_hex()
-            .unwrap();
+    fn should_hash_hex_claims() {
+        let hex_claim = "0x045a126cbbd3c66b6d542d40d91085e3f2b5db3bbc8cda0d59615deb08784e4f833e0bb082194790143c3d01cedb4a9663cb8c7bdaaad839cb794dd309213fcf30";
+        let hex_hash = digest_hex_claim_inner(hex_claim);
+        assert_eq!(hex_hash, "EB2a00pTkDYoqlnPUQ49D8wUZ41YPwEVpaoaLr2YY5w=");
 
-        let key = SecretKey::from_raw(&secret).unwrap();
-        let pub_key = key.public().bytes().to_hex::<String>();
-        let signature = match sign_msg(message, &secret) {
-            Ok(v) => v,
-            Err(_) => {
-                return assert_eq!("", "Signing failed");
-            }
-        };
+        let hex_claim = "0x049969c7741ade2e9f89f81d12080651038838e8089682158f3d892e57609b64e2137463c816e4d52f6688d490c35a0b8e524ac6d9722eed2616dbcaf676fc2578";
+        let hex_hash = digest_hex_claim_inner(hex_claim);
+        assert_eq!(hex_hash, "HOONvrHcCA8KgfirpKKk1RuHUG3NZimRc+9NcJbJuI8=");
 
-        // check back
+        let hex_claim = "0x049622878da186a8a31f4dc03454dbbc62365060458db174618218b51d5014fa56c8ea772234341ae326ce278091c39e30c02fa1f04792035d79311fe3283f1380";
+        let hex_hash = digest_hex_claim_inner(hex_claim);
+        assert_eq!(hex_hash, "KdzkitvXvJSqndKmRXAYBFZamdOrN+lFyEGKeYYGJeg=");
 
-        let signature_bytes = &mut [0_u8; 32 + 32 + 1];
-        // println!("SIG => {}", &signature);
-        // println!("SIG => {}", signature_bytes.len());
-        hex::decode_to_slice(signature, signature_bytes).unwrap();
-        let recovered_pub_key = match recover_sig(signature_bytes, message) {
-            Ok(v) => v,
-            Err(_) => {
-                return assert_eq!("", "Decoding failed");
-            }
-        };
+        let hex_claim = "0x0420606a7dcf293722f3eddc7dca0e2505c08d5099e3d495091782a107d006a7d64c3034184fb4cd59475e37bf40ca43e5e262be997bb74c45a9a723067505413e";
+        let hex_hash = digest_hex_claim_inner(hex_claim);
+        assert_eq!(hex_hash, "L3Y/6iJWtc6DyOS+Wad8tFlh8kiZO5BLCOhTHgSpIlc=");
+    }
 
-        assert_eq!(&recovered_pub_key, "782cc7dd72426893ae0d71477e41c41b03249a2b72e78eefcfe0baa9df604a8f979ab94cd23d872dac7bfa8d07d8b76b26efcbede7079f1c5cacd88fe9858f6e");
-        assert_eq!(&recovered_pub_key, &pub_key);
+    #[test]
+    fn should_match_string_and_hex() {
+        let str_claim = "Hello";
+        let hex_claim = "48656c6c6f"; // Hello
+        let hex_hash1 = digest_string_claim_inner(str_claim);
+        let hex_hash2 = digest_hex_claim_inner(hex_claim);
+        assert_eq!(hex_hash1, hex_hash2);
+
+        let str_claim = "Hello UTF8 ©âëíòÚ ✨";
+        let hex_claim = "48656c6c6f205554463820c2a9c3a2c3abc3adc3b2c39a20e29ca8"; // Hello UTF8 ©âëíòÚ ✨
+        let hex_hash1 = digest_string_claim_inner(str_claim);
+        let hex_hash2 = digest_hex_claim_inner(hex_claim);
+        assert_eq!(hex_hash1, hex_hash2);
+    }
+
+    #[test]
+    fn should_hash_hex_with_0x() {
+        let hex_hash1 = digest_hex_claim_inner("48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f");
+        let hex_hash2 = digest_hex_claim_inner("0x48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f");
+        assert_eq!(hex_hash1, hex_hash2);
+
+        let hex_hash1 = digest_hex_claim_inner("12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        let hex_hash2 = digest_hex_claim_inner("0x12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        assert_eq!(hex_hash1, hex_hash2);
+
+        let hex_hash1 = digest_hex_claim_inner("01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+        let hex_hash2 = digest_hex_claim_inner("0x01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+        assert_eq!(hex_hash1, hex_hash2);
+
+        let hex_hash1 = digest_hex_claim_inner("0000000000000000000000000000000000000000000000000000000000000000");
+        let hex_hash2 = digest_hex_claim_inner("0x0000000000000000000000000000000000000000000000000000000000000000");
+        assert_eq!(hex_hash1, hex_hash2);
+
+        let hex_hash1 = digest_hex_claim_inner("8888888888888888888888888888888888888888888888888888888888888888");
+        let hex_hash2 = digest_hex_claim_inner("0x8888888888888888888888888888888888888888888888888888888888888888");
+        assert_eq!(hex_hash1, hex_hash2);
+
+        let hex_hash1 = digest_hex_claim_inner("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        let hex_hash2 = digest_hex_claim_inner("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        assert_eq!(hex_hash1, hex_hash2);
+
+        let hex_hash1 = digest_hex_claim_inner("1234567890123456789012345678901234567890");
+        let hex_hash2 = digest_hex_claim_inner("0x1234567890123456789012345678901234567890");
+        assert_eq!(hex_hash1, hex_hash2);
     }
 }

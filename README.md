@@ -1,6 +1,6 @@
-# Flutter Rust FFI Template
+# DVote Flutter native
 
-This project is a Flutter Plugin template. 
+This project is a Flutter Plugin. 
 
 It provides out-of-the box support for cross-compiling native Rust code for all available iOS and Android architectures and call it from plain Dart using [Foreign Function Interface](https://en.wikipedia.org/wiki/Foreign_function_interface).
 
