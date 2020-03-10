@@ -1,22 +1,45 @@
-# DVote Flutter native
+# DVote Flutter Native
 
-This project is a Flutter Plugin. 
+This project is a Flutter Plugin that provides access to native code written in Rust. 
 
 It provides out-of-the box support for cross-compiling native Rust code for all available iOS and Android architectures and call it from plain Dart using [Foreign Function Interface](https://en.wikipedia.org/wiki/Foreign_function_interface).
 
-This template provides first class FFI support, **the clean way**. 
-- No Swift or Kotlin wrappers
-- No message channels
-- No async calls
-- No need to export `aar` bundles or `.framework`'s
+## Overview
+
+DVote Flutter Native provides:
+- ZK Snarks prove generation using [ZA](https://github.com/adria0/za/tree/master/binding/flutter/native)
+- Poseidon hashes for Hex strings and plain strings
+
+The following platforms and architectures are supported:
+- Android
+  - ARMv7
+  - ARM 64
+  - x86
+- iOS
+  - ARM 64
+  - x86_64
+
+Cross compilation for MacOS, Linux and Windows should not be difficult but is not available yet. 
+
+For a census of 1 million claims, ZK proof generation times are in the range of:
+- 2 to 4 seconds on a desktop computer
+- 7 seconds (Android ARM 64) to 52 seconds (older Android ARM v7)
+
+### Considerations
+
+- Every census size needs the generation of a specific setup + proving key
+  - The setup and the ceremony are out of the scope of this project
+- A census of 1M claims takes 20Mb of space
+  - Such data should be hosted elsewhere other than the repo itself
+  - Standard proving keys can be placed on a CDN/IPFS and be fetched+cached when the app launches
 
 ## Getting started
 
-### Write your native code
+### Write the native code
 
-Edit your code within `rust/src/lib.rs` and add any dependencies you need.
+Edit the code within `rust/src/lib.rs` and add any dependencies you need.
 
-Make sure to annotate your exported functions with `#[no_mangle]` and `pub extern` so the function names can be matched from Dart.
+Make sure to annotate the exported functions with `#[no_mangle]` and `pub extern` so the function names can be matched from Dart.
 
 Returning strings or structs may require using `unsafe` blocks. Returned strings or structs will need to be `free`'d from Dart.
 
@@ -25,8 +48,8 @@ Returning strings or structs may require using `unsafe` blocks. Returned strings
 - Make sure that the Android NDK is installed
   - You might also need LLVM from the SDK manager
 - Ensure that the env variable `$ANDROID_NDK_HOME` points to the NDK base folder
-  - It may look like `/Users/brickpop/Library/Android/sdk/ndk-bundle` on MacOS
-  - And look like `/home/brickpop/dev/android/ndk-bundle` on Linux
+  - It may look like `/Users/name/Library/Android/sdk/ndk-bundle` on MacOS
+  - And look like `/home/name/dev/android/ndk-bundle` on Linux
 - On the `rust` folder:
   - Run `make` to see the available actions
   - Run `make init` to install the Rust targets
@@ -36,11 +59,11 @@ Returning strings or structs may require using `unsafe` blocks. Returned strings
 
 Generated artifacts:
 - Android libraries
-  - `target/aarch64-linux-android/release/libexample.so`
-  - `target/armv7-linux-androideabi/release/libexample.so`
-  - `target/i686-linux-android/release/libexample.so`
+  - `target/aarch64-linux-android/release/libdvote.so`
+  - `target/armv7-linux-androideabi/release/libdvote.so`
+  - `target/i686-linux-android/release/libdvote.so`
 - iOS library
-  - `target/universal/release/libexample.a`
+  - `target/universal/release/libdvote.a`
 - Bindings header
   - `target/bindings.h`
 
@@ -48,7 +71,7 @@ Generated artifacts:
 
 #### iOS
 
-Ensure that `rust/ios/mylib.podspec` includes the following directives:
+Ensure that `ios/dvote_native.podspec` includes the following directives:
 
 ```diff
 ...
@@ -62,23 +85,23 @@ Ensure that `rust/ios/mylib.podspec` includes the following directives:
 ...
 ```
 
-On `flutter/ios`, place a symbolic link to the `libexample.a` file
+On `flutter/ios`, place a symbolic link to the `libdvote.a` file
 
 ```sh
 $ cd flutter/ios
-$ ln -s ../rust/target/universal/release/libexample.a .
+$ ln -s ../rust/target/universal/release/libdvote.a .
 ```
 
-Append the generated function signatures from `rust/target/bindings.h` into `flutter/ios/Classes/MylibPlugin.h`
+Append the generated function signatures from `rust/target/bindings.h` into `flutter/ios/Classes/DVotePlugin.h`
 
 ```sh 
 $ cd flutter/ios
-$ cat ../rust/target/bindings.h >> Classes/MylibPlugin.h
+$ cat ../rust/target/bindings.h >> Classes/DVotePlugin.h
 ```
 
 In our case, it will append `char *rust_greeting(const char *to);` and `void rust_cstr_free(char *s);`
 
-NOTE: By default, XCode will skip bundling the `libexample.a` library if it detects that it is not being used. To force its inclusion, add a dummy method in `SwiftMylibPlugin.m` that uses at least one of the native functions:
+NOTE: By default, XCode will skip bundling the `libdvote.a` library if it detects that it is not being used. To force its inclusion, add a dummy method in `SwiftDVotePlugin.swift` that uses at least one of the native functions:
 
 ```kotlin
 ...
@@ -92,32 +115,32 @@ If you won't be using Flutter channels, the rest of methods can be left empty.
 
 #### Android
 
-Similarly as we did on iOS with `libexample.a`, create symlinks pointing to the binary libraries on `rust/target`.
+Similarly as we did on iOS with `libdvote.a`, create symlinks pointing to the binary libraries on `rust/target`.
 
 You should have the following structure on `flutter/android` for each architecture:
 
 ```
 src
-`-- main
-    `-- jniLibs
-        |-- arm64-v8a
-        |   `-- libexample.so@ -> ../../../../../rust/target/aarch64-linux-android/release/libexample.so
-        |-- armeabi-v7a
-        |   `-- libexample.so@ -> ../../../../../rust/target/armv7-linux-androideabi/release/libexample.so
-        `-- x86
-            `-- libexample.so@ -> ../../../../../rust/target/i686-linux-android/release/libexample.so
+└── main
+    └── jniLibs
+        ├── arm64-v8a
+        │   └── libdvote.so@ -> ../../../../../rust/target/aarch64-linux-android/release/libdvote.so
+        ├── armeabi-v7a
+        │   └── libdvote.so@ -> ../../../../../rust/target/armv7-linux-androideabi/release/libdvote.so
+        └── x86
+            └── libdvote.so@ -> ../../../../../rust/target/i686-linux-android/release/libdvote.so
 ```
 
-As before, if you are not using Flutter channels, the methods within `android/src/main/kotlin/org/mylib/mylib/MylibPlugin.kt` can be left empty.
+As before, if you are not using Flutter channels, the methods within `android/src/main/kotlin/com/dvote/dvote_native/DvoteNativePlugin.kt` can be left empty.
 
 ### Declare the bindings in Dart
 
-In `/lib/mylib.dart`, initialize the function bindings from Dart and implement any additional logic that you need.
+In `/lib/dvote_native.dart`, initialize the function bindings from Dart and implement any additional logic that you need.
 
 Load the library: 
 ```dart
 final DynamicLibrary nativeExampleLib = Platform.isAndroid
-    ? DynamicLibrary.open("libexample.so")
+    ? DynamicLibrary.open("libdvote.so")
     : DynamicLibrary.process();
 ```
 
@@ -136,20 +159,20 @@ Call them:
 ```dart
 // Prepare the parameters
 final name = "John Smith";
-final Pointer<Utf8> arg1 = Utf8.toUtf8(name);
-print("- Calling rust_greeting with argument:  $arg1");
+final Pointer<Utf8> namePtr = Utf8.toUtf8(name);
+print("- Calling rust_greeting with argument:  $namePtr");
 
 // Call rust_greeting
-final Pointer<Utf8> resultPointer = rustGreeting(argName);
-print("- Result pointer:  $resultPointer");
+final Pointer<Utf8> resultPtr = rustGreeting(namePtr);
+print("- Result pointer:  $resultPtr");
 
-final String greetingStr = Utf8.fromUtf8(resultPointer);
+final String greetingStr = Utf8.fromUtf8(resultPtr);
 print("- Response string:  $greetingStr");
 ```
 
 When we are done using `greetingStr`, tell Rust to free it, since the Rust implementation kept it alive for us to use it.
 ```dart
-freeGreeting(resultPointer);
+freeGreeting(resultPtr);
 ```
 
 ## More information

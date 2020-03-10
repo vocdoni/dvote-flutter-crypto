@@ -10,3 +10,5 @@ char *digest_hex_claim(const char *hex_claim_ptr);
 char *digest_string_claim(const char *str_claim_ptr);
 
 void free_cstr(char *string);
+
+char *generate_zk_proof(const char *proving_key_path, const char *inputs);

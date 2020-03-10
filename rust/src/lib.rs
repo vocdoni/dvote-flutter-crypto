@@ -1,7 +1,11 @@
+// extern crate stderrlog;
+extern crate za_prover;
+
 use poseidon_rs::Poseidon;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-// use rustc_hex::ToHex;
+use za_prover::groth16;
+use za_prover::groth16::helper;
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTED FUNCTIONS FUNCTIONS
@@ -30,6 +34,30 @@ pub extern "C" fn digest_hex_claim(hex_claim_ptr: *const c_char) -> *mut c_char 
 
     CString::new(hex_result).unwrap().into_raw()
 
+    // NOTE: Caller must free() the resulting pointer
+}
+
+#[no_mangle]
+pub extern "C" fn generate_zk_proof(
+    proving_key_path: *const c_char,
+    inputs: *const c_char,
+) -> *mut c_char {
+    let proving_key_path = unsafe { CStr::from_ptr(proving_key_path) };
+    let proving_key_path = proving_key_path
+        .to_str()
+        .expect("Could not parse proving_key_path");
+
+    let inputs = unsafe { CStr::from_ptr(inputs) };
+    let inputs = inputs.to_str().expect("Could not parse the inputs");
+
+    match groth16::flatten_json("main", &inputs)
+        .and_then(|inputs| helper::prove(&proving_key_path, inputs))
+    {
+        Ok(proof) => CString::new(proof).unwrap().into_raw(),
+        Err(err) => CString::new(format!("ERROR: {:?}", err))
+            .unwrap()
+            .into_raw(),
+    }
     // NOTE: Caller must free() the resulting pointer
 }
 
@@ -170,28 +198,52 @@ mod tests {
 
     #[test]
     fn should_hash_hex_with_0x() {
-        let hex_hash1 = digest_hex_claim_inner("48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f");
-        let hex_hash2 = digest_hex_claim_inner("0x48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f");
+        let hex_hash1 = digest_hex_claim_inner(
+            "48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f",
+        );
+        let hex_hash2 = digest_hex_claim_inner(
+            "0x48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f48656c6c6f",
+        );
         assert_eq!(hex_hash1, hex_hash2);
 
-        let hex_hash1 = digest_hex_claim_inner("12345678901234567890123456789012345678901234567890123456789012345678901234567890");
-        let hex_hash2 = digest_hex_claim_inner("0x12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        let hex_hash1 = digest_hex_claim_inner(
+            "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+        );
+        let hex_hash2 = digest_hex_claim_inner(
+            "0x12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+        );
         assert_eq!(hex_hash1, hex_hash2);
 
-        let hex_hash1 = digest_hex_claim_inner("01234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        let hex_hash2 = digest_hex_claim_inner("0x01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+        let hex_hash1 = digest_hex_claim_inner(
+            "01234567890123456789012345678901234567890123456789012345678901234567890123456789",
+        );
+        let hex_hash2 = digest_hex_claim_inner(
+            "0x01234567890123456789012345678901234567890123456789012345678901234567890123456789",
+        );
         assert_eq!(hex_hash1, hex_hash2);
 
-        let hex_hash1 = digest_hex_claim_inner("0000000000000000000000000000000000000000000000000000000000000000");
-        let hex_hash2 = digest_hex_claim_inner("0x0000000000000000000000000000000000000000000000000000000000000000");
+        let hex_hash1 = digest_hex_claim_inner(
+            "0000000000000000000000000000000000000000000000000000000000000000",
+        );
+        let hex_hash2 = digest_hex_claim_inner(
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+        );
         assert_eq!(hex_hash1, hex_hash2);
 
-        let hex_hash1 = digest_hex_claim_inner("8888888888888888888888888888888888888888888888888888888888888888");
-        let hex_hash2 = digest_hex_claim_inner("0x8888888888888888888888888888888888888888888888888888888888888888");
+        let hex_hash1 = digest_hex_claim_inner(
+            "8888888888888888888888888888888888888888888888888888888888888888",
+        );
+        let hex_hash2 = digest_hex_claim_inner(
+            "0x8888888888888888888888888888888888888888888888888888888888888888",
+        );
         assert_eq!(hex_hash1, hex_hash2);
 
-        let hex_hash1 = digest_hex_claim_inner("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        let hex_hash2 = digest_hex_claim_inner("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        let hex_hash1 = digest_hex_claim_inner(
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        );
+        let hex_hash2 = digest_hex_claim_inner(
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        );
         assert_eq!(hex_hash1, hex_hash2);
 
         let hex_hash1 = digest_hex_claim_inner("1234567890123456789012345678901234567890");
