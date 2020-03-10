@@ -2,11 +2,12 @@
 PROJECTNAME=$(shell basename "$(PWD)")
 SOURCES=$(sort $(wildcard ./src/*.rs ./src/**/*.rs))
 
-PATH := $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(shell uname | tr '[:upper:]' '[:lower:]')-x86_64/bin:$(PATH)
+OS_NAME=$(shell uname | tr '[:upper:]' '[:lower:]')
+PATH := $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin:$(PATH)
 
-ANDROID_AARCH64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(shell uname | tr '[:upper:]' '[:lower:]')-x86_64/bin/aarch64-linux-android29-clang
-ANDROID_ARMV7_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(shell uname | tr '[:upper:]' '[:lower:]')-x86_64/bin/armv7a-linux-androideabi29-clang
-ANDROID_I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(shell uname | tr '[:upper:]' '[:lower:]')-x86_64/bin/i686-linux-android29-clang
+ANDROID_AARCH64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/aarch64-linux-android29-clang
+ANDROID_ARMV7_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/armv7a-linux-androideabi29-clang
+ANDROID_I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android29-clang
 
 SHELL := /bin/bash
 
@@ -76,11 +77,8 @@ ndk-home:
 ## bindings: Generate the .h file for iOS
 bindings: target/bindings.h
 
-target/bindings.h: target/bindings.src.h
-	cat $< | grep -v \#include | uniq > $@
-
-target/bindings.src.h: $(SOURCES)
-	cbindgen $^ -c cbindgen.toml -o $@
+target/bindings.h: $(SOURCES)
+	cbindgen $^ -c cbindgen.toml | grep -v \#include | uniq > $@
 
 ## :
 
@@ -97,4 +95,4 @@ clean:
 ## test:
 .PHONY: test
 test:
-	RUST_BACKTRACE=1 cargo test
+	cargo test
