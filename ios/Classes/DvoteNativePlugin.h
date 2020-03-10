@@ -5,10 +5,8 @@
 
 // NOTE: Append the lines below to ios/Classes/DvoteNativePlugin.h
 
-void free_cstr(char *s);
+char *digest_hex_claim(const char *hex_claim_ptr);
 
-bool is_valid_signature(const char *signature_ptr, const char *msg_ptr, const char *public_key_ptr);
+char *digest_string_claim(const char *str_claim_ptr);
 
-char *recover_signature(const char *signature_ptr, const char *msg_ptr);
-
-char *sign_message(const char *msg_ptr, const char *hex_priv_key_ptr);
+void free_cstr(char *string);

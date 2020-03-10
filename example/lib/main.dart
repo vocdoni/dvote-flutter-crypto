@@ -3,13 +3,16 @@ import 'package:dvote_native/dvote_native.dart';
 
 void main() => runApp(MyApp());
 
+const PUBLIC_KEY =
+    "0x045a126cbbd3c66b6d542d40d91085e3f2b5db3bbc8cda0d59615deb08784e4f833e0bb082194790143c3d01cedb4a9663cb8c7bdaaad839cb794dd309213fcf30";
+
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  String _signature = 'Unknown';
+  String _hash = '(Unknown)';
 
   @override
   void initState() {
@@ -19,8 +22,7 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   void initPlatformState() {
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    final signature = signString("Hello", "0x1234....");
+    final hash = digestHexClaim(PUBLIC_KEY);
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -28,7 +30,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _signature = signature;
+      _hash = hash;
     });
   }
 
@@ -37,10 +39,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('DVote Native'),
         ),
         body: Center(
-          child: Text('Running on: $_signature\n'),
+          child: Text('The Poseidon hash of\n$PUBLIC_KEY\n\nis\n\n$_hash\n'),
         ),
       ),
     );

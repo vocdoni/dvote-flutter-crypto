@@ -13,6 +13,6 @@ public class SwiftDvoteNativePlugin: NSObject, FlutterPlugin {
 
   public func dummyMethodToEnforceBundling() {
     // dummy calls to prevent tree shaking
-    is_valid_signature("", "", "");
+    digest_string_claim("");
   }
 }

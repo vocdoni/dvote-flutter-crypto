@@ -2,77 +2,83 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 
-// void free_cstr(char *s);
-// bool is_valid_signature(const char *signature_ptr, const char *msg_ptr, const char *public_key_ptr);
-// char *recover_signature(const char *signature_ptr, const char *msg_ptr);
-// char *sign_message(const char *msg_ptr, const char *hex_priv_key_ptr);
+///////////////////////////////////////////////////////////////////////////////
+// C bindings
+///////////////////////////////////////////////////////////////////////////////
 
-// Use typedef for more readable type definitions below
+// char *digest_hex_claim(const char *hex_claim_ptr);
+// char *digest_string_claim(const char *str_claim_ptr);
+// void free_cstr(char *string);
 
-typedef SignMessageFunc = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
-typedef SignMessageFuncNative = Pointer<Utf8> Function(
-    Pointer<Utf8>, Pointer<Utf8>);
+///////////////////////////////////////////////////////////////////////////////
+// Typedef's
+///////////////////////////////////////////////////////////////////////////////
 
-typedef RecoverSignatureFunc = Pointer<Utf8> Function(
-    Pointer<Utf8>, Pointer<Utf8>);
-typedef RecoverSignatureFuncNative = Pointer<Utf8> Function(
-    Pointer<Utf8>, Pointer<Utf8>);
+typedef DigestHexClaimFunc = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef DigestHexClaimFuncNative = Pointer<Utf8> Function(Pointer<Utf8>);
 
-typedef IsValidSignatureFunc = int Function(
-    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>);
-typedef IsValidSignatureFuncNative = Int32 Function(
-    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>);
+typedef DigestStringClaim = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef DigestStringClaimNative = Pointer<Utf8> Function(Pointer<Utf8>);
 
 typedef FreeStringFunc = void Function(Pointer<Utf8>);
 typedef FreeStringFuncNative = Void Function(Pointer<Utf8>);
 
+///////////////////////////////////////////////////////////////////////////////
 // Load the library
+///////////////////////////////////////////////////////////////////////////////
 
-final DynamicLibrary nativeExampleLib = Platform.isAndroid
+final DynamicLibrary nativeDvote = Platform.isAndroid
     ? DynamicLibrary.open("libdvote.so")
     : DynamicLibrary.process();
 
-// Find the symbols we want to use
+///////////////////////////////////////////////////////////////////////////////
+// Locate the symbols we want to use
+///////////////////////////////////////////////////////////////////////////////
 
-final SignMessageFunc _signMessage = nativeExampleLib
-    .lookup<NativeFunction<SignMessageFuncNative>>("sign_message")
+final DigestHexClaimFunc _digestHexClaim = nativeDvote
+    .lookup<NativeFunction<DigestHexClaimFuncNative>>("digest_hex_claim")
     .asFunction();
 
-final RecoverSignatureFunc _recoverSignature = nativeExampleLib
-    .lookup<NativeFunction<RecoverSignatureFuncNative>>("recover_signature")
+final DigestStringClaim _digestStringClaim = nativeDvote
+    .lookup<NativeFunction<DigestStringClaimNative>>("digest_string_claim")
     .asFunction();
 
-final IsValidSignatureFunc _isValidSignature = nativeExampleLib
-    .lookup<NativeFunction<IsValidSignatureFuncNative>>("is_valid_signature")
-    .asFunction();
-
-final FreeStringFunc _freeCString = nativeExampleLib
+final FreeStringFunc _freeCString = nativeDvote
     .lookup<NativeFunction<FreeStringFuncNative>>("free_cstr")
     .asFunction();
 
-String signString(String message, String hexPrivateKey) {
-  if (nativeExampleLib == null)
-    return "ERROR: The library is not initialized 🙁";
+///////////////////////////////////////////////////////////////////////////////
+// HANDLERS
+///////////////////////////////////////////////////////////////////////////////
 
-  print("- DVote bindings found 👍");
-  print("  ${nativeExampleLib.toString()}"); // Instance info
-
-  final argMessage = Utf8.toUtf8(message);
-  final argHexPrivateKey = Utf8.toUtf8(hexPrivateKey);
-  print(
-      "- Calling sign_message with arguments:  $argMessage, $argHexPrivateKey");
+String digestHexClaim(String claimData) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+  final claimDataPtr = Utf8.toUtf8(claimData);
 
   // The actual native call
-  final resultPointer = _signMessage(argMessage, argHexPrivateKey);
-  print("- Result pointer:  $resultPointer");
-
-  final signatureStr = Utf8.fromUtf8(resultPointer);
-  print("- Response string:  $signatureStr");
+  final hashPtr = _digestHexClaim(claimDataPtr);
+  final hashStr = Utf8.fromUtf8(hashPtr);
 
   // Free the string pointer, as we already have
   // an owned String to return
-  print("- Freing the native char*");
-  _freeCString(resultPointer);
+  _freeCString(hashPtr);
 
-  return signatureStr;
+  if (hashStr.startsWith("ERROR: ")) throw Exception(hashStr.substring(7));
+  return hashStr;
+}
+
+String digestStringClaim(String claimData) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+  final claimDataPtr = Utf8.toUtf8(claimData);
+
+  // The actual native call
+  final hashPtr = _digestStringClaim(claimDataPtr);
+  final hashStr = Utf8.fromUtf8(hashPtr);
+
+  // Free the string pointer, as we already have
+  // an owned String to return
+  _freeCString(hashPtr);
+
+  if (hashStr.startsWith("ERROR: ")) throw Exception(hashStr.substring(7));
+  return hashStr;
 }
