@@ -35,13 +35,14 @@ For a census of 1 million claims, ZK proof generation times are in the range of:
 
 ## Getting started
 
-### Write the native code
+### Import the native code
 
-Edit the code within `rust/src/lib.rs` and add any dependencies you need.
+The Rust source code is located at [https://gitlab.com/vocdoni/dvote-rs](https://gitlab.com/vocdoni/dvote-rs) and mounted on the `rust` folder by git.
 
-Make sure to annotate the exported functions with `#[no_mangle]` and `pub extern` so the function names can be matched from Dart.
-
-Returning strings or structs may require using `unsafe` blocks. Returned strings or structs will need to be `free`'d from Dart.
+```
+$ git submodules init
+$ git submodules update
+```
 
 ### Compile the library
 
