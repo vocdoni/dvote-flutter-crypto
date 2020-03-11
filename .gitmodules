@@ -1,3 +1,3 @@
-[submodule "rust/za"]
-	path = rust/za
-	url = https://github.com/adria0/za.git
+[submodule "rust"]
+	path = rust
+	url = https://gitlab.com/vocdoni/dvote-rs.git
