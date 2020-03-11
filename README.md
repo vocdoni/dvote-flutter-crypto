@@ -40,8 +40,8 @@ For a census of 1 million claims, ZK proof generation times are in the range of:
 The Rust source code is located at [https://gitlab.com/vocdoni/dvote-rs](https://gitlab.com/vocdoni/dvote-rs) and mounted on the `rust` folder by git.
 
 ```
-$ git submodules init
-$ git submodules update
+$ git submodule init
+$ git submodule update
 ```
 
 ### Compile the library
