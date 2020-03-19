@@ -176,6 +176,11 @@ When we are done using `greetingStr`, tell Rust to free it, since the Rust imple
 freeGreeting(resultPtr);
 ```
 
+## Publishing to pub.dev
+
+- Run `make init` to start developing
+- Run `make publish` to update the symbolic links and upload to pub.dev
+
 ## More information
 - https://dart.dev/guides/libraries/c-interop
 - https://flutter.dev/docs/development/platform-integration/c-interop
