@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Uploading again with the proper library binaries
+
 ## 0.2.0
 
 * Adding support to generate ZK proofs
