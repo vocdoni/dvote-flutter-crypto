@@ -61,7 +61,7 @@ final FreeStringFunc _freeCString = nativeDvote
 // HANDLERS
 ///////////////////////////////////////////////////////////////////////////////
 
-/// Generates a Poseidon Hash of the given UTF8 string and returns it encoded in Base64
+/// Generates a Poseidon Hash of the given hex payload and returns it encoded in Base64
 String digestHexClaim(String claimData) {
   if (nativeDvote == null) throw Exception("The library is not initialized");
   final claimDataPtr = Utf8.toUtf8(claimData);
@@ -83,7 +83,7 @@ String digestHexClaim(String claimData) {
   return hash;
 }
 
-/// Generates a Poseidon Hash of the given Hex payload and returns it encoded in Base64
+/// Generates a Poseidon Hash of the given UTF8 string and returns it encoded in Base64
 String digestStringClaim(String claimData) {
   if (nativeDvote == null) throw Exception("The library is not initialized");
   final claimDataPtr = Utf8.toUtf8(claimData);
