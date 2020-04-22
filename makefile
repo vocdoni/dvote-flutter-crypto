@@ -122,12 +122,5 @@ publish: all
 ## clean:
 .PHONY: clean
 clean:
-	cargo clean
-	rm -f target/bindings.h target/bindings.src.h
-
-## test:
-.PHONY: test
-test:
-	cargo test
-
-
+	flutter clean
+	cd rust && make clean
