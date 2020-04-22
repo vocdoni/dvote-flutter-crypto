@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Using the little-endian Poseidon hashing format
+
 ## 0.2.2
 
 * Adding support for iOS ARMv7
