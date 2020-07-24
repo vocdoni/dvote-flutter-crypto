@@ -87,6 +87,9 @@ class _ZkProofsScreenState extends State<ZkProofsScreen> {
             "$zkProof\n\nComputation took ${duration.inSeconds} seconds";
       });
     } catch (err) {
+      setState(() {
+        _response = "ERROR: " + err.toString();
+      });
       print(err);
     }
   }
