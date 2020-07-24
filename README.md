@@ -23,6 +23,7 @@ Cross compilation for MacOS, Linux and Windows should not be difficult but is no
 
 For a census of 1 million claims, ZK proof generation times are in the range of:
 - 2 to 4 seconds on a desktop computer
+- 3 seconds on a 2020 iPhone SE
 - 7 seconds (Android ARM 64) to 52 seconds (older Android ARM v7)
 
 ### Considerations

@@ -1,3 +1,12 @@
+## 0.5.0
+
+* Adding all dummy calls in a self contained function
+* Improve the example
+
+## 0.4.0
+
+* Adding dummy calls to `digest_hex_claim` and `free_cstr` so that the linker also includes them on Release mode
+
 ## 0.3.0
 
 * Using the little-endian Poseidon hashing format

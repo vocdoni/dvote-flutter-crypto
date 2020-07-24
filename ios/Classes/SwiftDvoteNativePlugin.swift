@@ -12,7 +12,13 @@ public class SwiftDvoteNativePlugin: NSObject, FlutterPlugin {
   }
 
   public func dummyMethodToEnforceBundling() {
-    // dummy calls to prevent tree shaking
-    digest_string_claim("");
+    // Perform dummy calls to prevent tree shaking
+    // This code will never be actually executed
+
+    var a = digest_string_claim("this is a string");
+    var b = digest_hex_claim("0x1234");
+    free_cstr(a);
+    free_cstr(b);
+    generate_zk_proof("", "");
   }
 }
