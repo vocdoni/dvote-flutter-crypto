@@ -22,6 +22,24 @@ typedef DigestHexClaimFuncNative = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DigestStringClaim = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DigestStringClaimNative = Pointer<Utf8> Function(Pointer<Utf8>);
 
+typedef GenerateMnemonic = Pointer<Utf8> Function(int);
+typedef GenerateMnemonicNative = Pointer<Utf8> Function(Int32);
+
+typedef ComputePrivateKey = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>);
+typedef ComputePrivateKeyNative = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>);
+
+typedef ComputePublicKey = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef ComputePublicKeyNative = Pointer<Utf8> Function(Pointer<Utf8>);
+
+typedef ComputeAddress = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef ComputeAddressNative = Pointer<Utf8> Function(Pointer<Utf8>);
+
+typedef SignMessage = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
+typedef SignMessageNative = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>);
+
 typedef GenerateZkProof = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef GenerateZkProofNative = Pointer<Utf8> Function(
     Pointer<Utf8>, Pointer<Utf8>);
@@ -47,6 +65,26 @@ final DigestHexClaimFunc _digestHexClaim = nativeDvote
 
 final DigestStringClaim _digestStringClaim = nativeDvote
     .lookup<NativeFunction<DigestStringClaimNative>>("digest_string_claim")
+    .asFunction();
+
+final GenerateMnemonic _generateMnemonic = nativeDvote
+    .lookup<NativeFunction<GenerateMnemonicNative>>("generate_mnemonic")
+    .asFunction();
+
+final ComputePrivateKey _computePrivateKey = nativeDvote
+    .lookup<NativeFunction<ComputePrivateKeyNative>>("compute_private_key")
+    .asFunction();
+
+final ComputePublicKey _computePublicKey = nativeDvote
+    .lookup<NativeFunction<ComputePublicKeyNative>>("compute_public_key")
+    .asFunction();
+
+final ComputeAddress _computeAddress = nativeDvote
+    .lookup<NativeFunction<ComputeAddressNative>>("compute_address")
+    .asFunction();
+
+final SignMessage _signMessage = nativeDvote
+    .lookup<NativeFunction<SignMessageNative>>("sign_message")
     .asFunction();
 
 final GenerateZkProof _generateZkProof = nativeDvote
@@ -103,6 +141,132 @@ String digestStringClaim(String claimData) {
   // Free the string pointer
   _freeCString(resultPtr);
   return hash;
+}
+
+/// Generates a random mnemonic of the given size
+String generateMnemonic(int size) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+
+  switch (size) {
+    case 128:
+    case 160:
+    case 192:
+    case 224:
+    case 256:
+      break;
+    default:
+      throw ArgumentError("Invalid key size");
+  }
+
+  // The actual native call
+  final resultPtr = _generateMnemonic(size);
+  final result = Utf8.fromUtf8(resultPtr);
+
+  if (result.startsWith("ERROR: ")) {
+    final errMessage = "" + result.substring(7);
+    // Free the string pointer
+    _freeCString(resultPtr);
+    throw Exception(errMessage);
+  }
+
+  final mnemonic = "" + result; // make a copy before freing
+  // Free the string pointer
+  _freeCString(resultPtr);
+  return mnemonic;
+}
+
+/// Computes the private key derived from the given seed phrase and HD path
+String computePrivateKey(String mnemonic, [String hdPath]) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+
+  final mnemonicPtr = Utf8.toUtf8(mnemonic);
+  final hdPathPtr = Utf8.toUtf8(hdPath ?? "");
+
+  // The actual native call
+  final resultPtr = _computePrivateKey(mnemonicPtr, hdPathPtr);
+  final result = Utf8.fromUtf8(resultPtr);
+
+  if (result.startsWith("ERROR: ")) {
+    final errMessage = "" + result.substring(7);
+    // Free the string pointer
+    _freeCString(resultPtr);
+    throw Exception(errMessage);
+  }
+
+  final privKey = "0x" + result; // make a copy before freing
+  // Free the string pointer
+  _freeCString(resultPtr);
+  return privKey;
+}
+
+/// Computes the public key corresponding to the given private one
+String computePublicKey(String hexPrivateKey) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+
+  final privKeyPtr = Utf8.toUtf8(hexPrivateKey.replaceAll(r"^0x", ""));
+
+  // The actual native call
+  final resultPtr = _computePublicKey(privKeyPtr);
+  final result = Utf8.fromUtf8(resultPtr);
+
+  if (result.startsWith("ERROR: ")) {
+    final errMessage = "" + result.substring(7);
+    // Free the string pointer
+    _freeCString(resultPtr);
+    throw Exception(errMessage);
+  }
+
+  final pubKey = "0x" + result; // make a copy before freing
+  // Free the string pointer
+  _freeCString(resultPtr);
+  return pubKey;
+}
+
+/// Computes the address corresponding to the given private key
+String computeAddress(String hexPrivateKey) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+
+  final privKeyPtr = Utf8.toUtf8(hexPrivateKey.replaceAll(r"^0x", ""));
+
+  // The actual native call
+  final resultPtr = _computeAddress(privKeyPtr);
+  final result = Utf8.fromUtf8(resultPtr);
+
+  if (result.startsWith("ERROR: ")) {
+    final errMessage = "" + result.substring(7);
+    // Free the string pointer
+    _freeCString(resultPtr);
+    throw Exception(errMessage);
+  }
+
+  final pubKey = "" + result; // make a copy before freing
+  // Free the string pointer
+  _freeCString(resultPtr);
+  return pubKey;
+}
+
+/// Computes the address corresponding to the given private key
+String signMessage(String message, String hexPrivateKey) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+
+  final messagePtr = Utf8.toUtf8(message);
+  final privKeyPtr = Utf8.toUtf8(hexPrivateKey.replaceAll(r"^0x", ""));
+
+  // The actual native call
+  final resultPtr = _signMessage(messagePtr, privKeyPtr);
+  final result = Utf8.fromUtf8(resultPtr);
+
+  if (result.startsWith("ERROR: ")) {
+    final errMessage = "" + result.substring(7);
+    // Free the string pointer
+    _freeCString(resultPtr);
+    throw Exception(errMessage);
+  }
+
+  final pubKey = "0x" + result; // make a copy before freing
+  // Free the string pointer
+  _freeCString(resultPtr);
+  return pubKey;
 }
 
 /// Computes the Zero Knowledge Proof for the given set of inputs using the Proving Key located at the given path.
