@@ -15,10 +15,17 @@ public class SwiftDvoteNativePlugin: NSObject, FlutterPlugin {
     // Perform dummy calls to prevent tree shaking
     // This code will never be actually executed
 
-    var a = digest_string_claim("this is a string");
-    var b = digest_hex_claim("0x1234");
+    let a = digest_string_claim("this is a string");
+    let b = digest_hex_claim("0x1234");
     free_cstr(a);
     free_cstr(b);
     generate_zk_proof("", "");
+
+    generate_mnemonic(192);
+    compute_private_key("some mnemonic", "");
+    compute_public_key("0x0000000000000000000000000000000000000000000000000000000000000001");
+    compute_address("0x0000000000000000000000000000000000000000000000000000000000000001");
+
+    sign_message("hello", "0x0000000000000000000000000000000000000000000000000000000000000001");
   }
 }
