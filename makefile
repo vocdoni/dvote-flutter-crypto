@@ -40,19 +40,19 @@ all: ios android
 ## ios: Copy the iOS static library and bindings header file
 ios: artifacts/libdvote.a artifacts/bindings.h
 
-## ios: Copy the shared libraries for Android
+## android: Copy the shared libraries for Android
 android: artifacts/arm64-v8a/libdvote.so artifacts/armeabi-v7a/libdvote.so artifacts/x86/libdvote.so
 
 artifacts/libdvote.a: rust/target/universal/release/libdvote.a
 	@mkdir -p artifacts
 	@if [ $$(uname) == "Darwin" ] ; then rm -f $@ && cp $< $@ ; \
-	else echo "Skipping iOS on $$(uname)" ; \
+	else echo "Warning: Skipping iOS on $$(uname)" ; \
 	fi
 
 artifacts/bindings.h: rust/target/bindings.h
 	@mkdir -p artifacts
 	@if [ $$(uname) == "Darwin" ] ; then rm -f $@ && cp $< $@ ; \
-	else echo "Skipping iOS on $$(uname)" ; \
+	else echo "Warning: Skipping iOS on $$(uname)" ; \
 	fi
 
 artifacts/arm64-v8a/libdvote.so: rust/target/aarch64-linux-android/release/libdvote.so
@@ -75,10 +75,11 @@ rust/target/i686-linux-android/release/libdvote.so: rust-targets
 
 ## :
 ## release-links: Make symbolic links pointing to artifacts/ (for pub.dev release)
+.PHONY: release-links
 release-links:
 	@if [ $$(uname) == "Darwin" ] ; then \
 		rm -f ios/libdvote.a && cd ios && ln -s ../artifacts/libdvote.a . ; \
-	else echo "Skipping iOS on $$(uname)" ; \
+	else echo "Warning: Skipping iOS on $$(uname)" ; \
 	fi
 	rm -f android/src/main/jniLibs/arm64-v8a/libdvote.so
 	cd android/src/main/jniLibs/arm64-v8a && ln -s ../../../../../artifacts/arm64-v8a/libdvote.so .
@@ -88,10 +89,11 @@ release-links:
 	cd android/src/main/jniLibs/x86 && ln -s ../../../../../artifacts/x86/libdvote.so .
 
 ## dev-links: Make symbolic links pointing to rust/target/
+.PHONY: dev-links
 dev-links:
 	@if [ $$(uname) == "Darwin" ] ; then \
 		rm -f ios/libdvote.a && cd ios && ln -s ../rust/target/universal/release/libdvote.a . ; \
-	else echo "Skipping iOS on $$(uname)" ; \
+	else echo "Warning: Skipping iOS on $$(uname)" ; \
 	fi
 	rm -f android/src/main/jniLibs/arm64-v8a/libdvote.so
 	cd android/src/main/jniLibs/arm64-v8a && ln -s ../../../../../rust/target/aarch64-linux-android/release/libdvote.so .
@@ -121,6 +123,14 @@ publish: all
 
 ## clean:
 .PHONY: clean
-clean:
+clean: clean-example
 	flutter clean
 	cd rust && make clean
+
+.PHONY: clean-example
+clean-example:
+	flutter clean
+	rm -Rf ios/Pods
+	rm -Rf ios/.symlinks
+	rm -Rf ios/Flutter/Flutter.framework
+	rm -Rf ios/Flutter/Flutter.podspec
