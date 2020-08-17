@@ -18,6 +18,7 @@ help: makefile
 ## init: Install missing dependencies.
 .PHONY: init
 init:
+	flutter pub get
 	git submodule init
 	git submodule update
 	make rust-targets
