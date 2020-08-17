@@ -1,3 +1,7 @@
+## 0.6.0
+
+- Using rust cryptographic primitives for Wallet methods
+
 ## 0.5.0
 
 * Adding all dummy calls in a self contained function
