@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import "./zk-snarks.dart";
 import "./hashing.dart";
+import './wallet.dart';
 
 void main() async {
   runApp(MaterialApp(
@@ -28,6 +29,16 @@ class ExampleApp extends StatelessWidget {
               isThreeLine: true,
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ZkProofsScreen())),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: FlutterLogo(size: 72.0),
+              title: Text('Wallet'),
+              subtitle: Text('Generating wallets, computing keys and signing'),
+              isThreeLine: true,
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => WalletScreen())),
             ),
           ),
           Card(
