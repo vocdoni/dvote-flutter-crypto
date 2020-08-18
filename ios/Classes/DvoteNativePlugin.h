@@ -21,4 +21,10 @@ char *generate_mnemonic(int32_t size);
 
 char *generate_zk_proof(const char *proving_key_path, const char *inputs);
 
+bool is_valid_signature(const char *hex_signature_ptr,
+                        const char *message_ptr,
+                        const char *hex_public_key_ptr);
+
+char *recover_message_signer(const char *hex_signature_ptr, const char *message_ptr);
+
 char *sign_message(const char *message_ptr, const char *hex_private_key_ptr);

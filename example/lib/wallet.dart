@@ -14,7 +14,9 @@ class _WalletScreenState extends State<WalletScreen> {
       _privateKey = "-",
       _publicKey = "-",
       _address = "-",
-      _signature = "-";
+      _signature = "-",
+      _recoveredPublicKey = "-";
+  bool _valid = false;
   String message = "hello";
   Duration _duration = Duration(seconds: 0);
 
@@ -27,16 +29,22 @@ class _WalletScreenState extends State<WalletScreen> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     setState(() {
-      final start = DateTime.now();
-      _randomMnemonic = generateMnemonic(192);
-      _privateKey = computePrivateKey(MNEMONIC);
+      try {
+        final start = DateTime.now();
+        _randomMnemonic = generateMnemonic(192);
+        _privateKey = computePrivateKey(MNEMONIC);
 
-      _publicKey = computePublicKey(_privateKey);
-      _address = computeAddress(_privateKey);
+        _publicKey = computePublicKey(_privateKey);
+        _address = computeAddress(_privateKey);
 
-      _signature = signMessage(message, _privateKey);
+        _signature = signMessage(message, _privateKey);
+        _recoveredPublicKey = recoverMessageSigner(_signature, message);
+        _valid = isSignatureValid(_signature, message, _publicKey);
 
-      _duration = start.difference(DateTime.now()).abs();
+        _duration = start.difference(DateTime.now()).abs();
+      } catch (err) {
+        print(err);
+      }
     });
   }
 
@@ -54,8 +62,15 @@ $_publicKey
 Address:
 $_address
 
+---
+
 Signing "$message" with the private key:
 $_signature
+
+Recovered public key:
+$_recoveredPublicKey
+
+Valid: $_valid
 
 Duration:
 ${_duration.inMicroseconds / 1000} ms
