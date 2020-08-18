@@ -7,10 +7,17 @@ import 'package:ffi/ffi.dart';
 // C bindings
 ///////////////////////////////////////////////////////////////////////////////
 
+// char *compute_address(const char *hex_private_key_ptr);
+// char *compute_private_key(const char *mnemonic_ptr, const char *hd_path_ptr);
+// char *compute_public_key(const char *hex_private_key_ptr);
 // char *digest_hex_claim(const char *hex_claim_ptr);
 // char *digest_string_claim(const char *str_claim_ptr);
 // void free_cstr(char *string);
+// char *generate_mnemonic(int32_t size);
 // char *generate_zk_proof(const char *proving_key_path, const char *inputs);
+// bool is_valid_signature(const char *hex_signature_ptr, const char *message_ptr, const char *hex_public_key_ptr);
+// char *recover_message_signer(const char *hex_signature_ptr, const char *message_ptr);
+// char *sign_message(const char *message_ptr, const char *hex_private_key_ptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Typedef's
@@ -39,6 +46,16 @@ typedef ComputeAddressNative = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef SignMessage = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef SignMessageNative = Pointer<Utf8> Function(
     Pointer<Utf8>, Pointer<Utf8>);
+
+typedef RecoverMessageSigner = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>);
+typedef RecoverMessageSignerNative = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>);
+
+typedef IsSignatureValid = int Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>);
+typedef IsSignatureValidNative = Int32 Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>);
 
 typedef GenerateZkProof = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef GenerateZkProofNative = Pointer<Utf8> Function(
@@ -85,6 +102,15 @@ final ComputeAddress _computeAddress = nativeDvote
 
 final SignMessage _signMessage = nativeDvote
     .lookup<NativeFunction<SignMessageNative>>("sign_message")
+    .asFunction();
+
+final RecoverMessageSigner _recoverMessageSigner = nativeDvote
+    .lookup<NativeFunction<RecoverMessageSignerNative>>(
+        "recover_message_signer")
+    .asFunction();
+
+final IsSignatureValid _isSignatureValid = nativeDvote
+    .lookup<NativeFunction<IsSignatureValidNative>>("is_valid_signature")
     .asFunction();
 
 final GenerateZkProof _generateZkProof = nativeDvote
@@ -239,10 +265,10 @@ String computeAddress(String hexPrivateKey) {
     throw Exception(errMessage);
   }
 
-  final pubKey = "" + result; // make a copy before freing
+  final address = "" + result; // make a copy before freing
   // Free the string pointer
   _freeCString(resultPtr);
-  return pubKey;
+  return address;
 }
 
 /// Computes the address corresponding to the given private key
@@ -263,10 +289,50 @@ String signMessage(String message, String hexPrivateKey) {
     throw Exception(errMessage);
   }
 
+  final signature = "0x" + result; // make a copy before freing
+  // Free the string pointer
+  _freeCString(resultPtr);
+  return signature;
+}
+
+/// Computes the public key that signed the given messaga against the given signature
+String recoverMessageSigner(String hexSignature, String message) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+
+  final hexSignaturePtr = Utf8.toUtf8(hexSignature.replaceAll(r"^0x", ""));
+  final messagePtr = Utf8.toUtf8(message);
+
+  // The actual native call
+  final resultPtr = _recoverMessageSigner(hexSignaturePtr, messagePtr);
+  final result = Utf8.fromUtf8(resultPtr);
+
+  if (result.startsWith("ERROR: ")) {
+    final errMessage = "" + result.substring(7);
+    // Free the string pointer
+    _freeCString(resultPtr);
+    throw Exception(errMessage);
+  }
+
   final pubKey = "0x" + result; // make a copy before freing
   // Free the string pointer
   _freeCString(resultPtr);
   return pubKey;
+}
+
+/// Verified that the
+bool isSignatureValid(
+    String hexSignature, String message, String hexPublicKey) {
+  if (nativeDvote == null) throw Exception("The library is not initialized");
+
+  final hexSignaturePtr = Utf8.toUtf8(hexSignature);
+  final messagePtr = Utf8.toUtf8(message);
+  final hexPublicKeyPtr = Utf8.toUtf8(hexPublicKey.replaceAll(r"^0x", ""));
+
+  // The actual native call
+  final validValue =
+      _isSignatureValid(hexSignaturePtr, messagePtr, hexPublicKeyPtr);
+
+  return validValue != 0;
 }
 
 /// Computes the Zero Knowledge Proof for the given set of inputs using the Proving Key located at the given path.

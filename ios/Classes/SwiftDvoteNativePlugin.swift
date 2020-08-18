@@ -27,5 +27,7 @@ public class SwiftDvoteNativePlugin: NSObject, FlutterPlugin {
     compute_address("0x0000000000000000000000000000000000000000000000000000000000000001");
 
     sign_message("hello", "0x0000000000000000000000000000000000000000000000000000000000000001");
+    recover_message_signer("", "");
+    is_valid_signature("", "", "");
   }
 }
