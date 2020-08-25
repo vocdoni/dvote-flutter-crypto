@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import 'package:flutter/services.dart';
 import 'package:dvote_native/dvote_native.dart';
 
 const PUBLIC_KEY =
@@ -26,11 +24,8 @@ class _HashingScreenState extends State<HashingScreen> {
     String hexHash;
     String error;
 
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      hexHash = digestHexClaim(PUBLIC_KEY);
-    } on PlatformException catch (err) {
-      error = err.message;
+      hexHash = Hashing.digestHexClaim(PUBLIC_KEY);
     } catch (err) {
       error = err;
     }

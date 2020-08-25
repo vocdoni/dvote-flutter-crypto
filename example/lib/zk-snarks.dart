@@ -77,14 +77,15 @@ class _ZkProofsScreenState extends State<ZkProofsScreen> {
     // sync call
     try {
       final start = DateTime.now();
-      final zkProof = generateZkProof(CIRCUIT_INPUT_VALUES, provingKeyPath);
+      final zkProof =
+          Snarks.generateZkProof(CIRCUIT_INPUT_VALUES, provingKeyPath);
       final end = DateTime.now();
 
       final duration = end.difference(start);
 
       setState(() {
         _response =
-            "$zkProof\n\nComputation took ${duration.inSeconds} seconds";
+            "$zkProof\n\nThe computation took ${duration.inMilliseconds} ms";
       });
     } catch (err) {
       setState(() {
