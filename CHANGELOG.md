@@ -1,3 +1,9 @@
+## 0.8.0
+
+- Using the new Rust repository (dvote-rs-ffi)
+- Encapsulating all methods within components and classes (`Wallet`, `Hashing` and `Snarks`)
+- Moving the native bindings into a separate file
+
 ## 0.7.0
 
 - Adding support for Ethereum signature verification and public key recovery

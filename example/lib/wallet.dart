@@ -31,15 +31,15 @@ class _WalletScreenState extends State<WalletScreen> {
     setState(() {
       try {
         final start = DateTime.now();
-        _randomMnemonic = generateMnemonic(192);
-        _privateKey = computePrivateKey(MNEMONIC);
+        _randomMnemonic = Wallet.generateMnemonic(192);
+        _privateKey = Wallet.computePrivateKey(MNEMONIC);
 
-        _publicKey = computePublicKey(_privateKey);
-        _address = computeAddress(_privateKey);
+        _publicKey = Wallet.computePublicKey(_privateKey);
+        _address = Wallet.computeAddress(_privateKey);
 
-        _signature = signMessage(message, _privateKey);
-        _recoveredPublicKey = recoverMessageSigner(_signature, message);
-        _valid = isSignatureValid(_signature, message, _publicKey);
+        _signature = Wallet.sign(message, _privateKey);
+        _recoveredPublicKey = Wallet.recoverSigner(_signature, message);
+        _valid = Wallet.isValid(_signature, message, _publicKey);
 
         _duration = start.difference(DateTime.now()).abs();
       } catch (err) {
@@ -52,6 +52,8 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final encryptionData = '''Random Mnemonic:
 $_randomMnemonic
+
+---
 
 Computed private key from "${MNEMONIC.substring(0, 15)}..."
 $_privateKey
