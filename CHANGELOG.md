@@ -1,3 +1,9 @@
+## 0.9.0
+
+- **Breaking**: Public keys are now compressed by default
+- Allowing to compute compressed and uncompressed public keys
+- Signature verification now supports compressed and uncompressed public keys
+
 ## 0.8.0
 
 - Using the new Rust repository (dvote-rs-ffi)

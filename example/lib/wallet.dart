@@ -34,12 +34,16 @@ class _WalletScreenState extends State<WalletScreen> {
         _randomMnemonic = Wallet.generateMnemonic(192);
         _privateKey = Wallet.computePrivateKey(MNEMONIC);
 
-        _publicKey = Wallet.computePublicKey(_privateKey);
+        _publicKey = Wallet.computePublicKey(_privateKey, uncompressed: false);
+        String uncompressedPubKey =
+            Wallet.computePublicKey(_privateKey, uncompressed: true);
         _address = Wallet.computeAddress(_privateKey);
 
         _signature = Wallet.sign(message, _privateKey);
         _recoveredPublicKey = Wallet.recoverSigner(_signature, message);
         _valid = Wallet.isValid(_signature, message, _publicKey);
+        // Uncompressed should validate too
+        assert(Wallet.isValid(_signature, message, uncompressedPubKey));
 
         _duration = start.difference(DateTime.now()).abs();
       } catch (err) {

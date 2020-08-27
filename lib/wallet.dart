@@ -65,14 +65,17 @@ class Wallet {
   }
 
   /// Computes the public key corresponding to the given private one
-  static String computePublicKey(String hexPrivateKey) {
+  static String computePublicKey(String hexPrivateKey,
+      {bool uncompressed = false}) {
     if (bridge.nativeDvote == null)
       throw Exception("The library is not initialized");
 
     final privKeyPtr = Utf8.toUtf8(hexPrivateKey.replaceAll(r"^0x", ""));
 
     // The actual native call
-    final resultPtr = bridge.computePublicKey(privKeyPtr);
+    final resultPtr = uncompressed
+        ? bridge.computePublicKeyUncompressed(privKeyPtr)
+        : bridge.computePublicKey(privKeyPtr);
     final result = Utf8.fromUtf8(resultPtr);
 
     if (result.startsWith("ERROR: ")) {
@@ -163,7 +166,8 @@ class Wallet {
   }
 
   /// Checks whether the given signature corresponds to hexPublicKey for the given message
-  static bool isValid(String hexSignature, String message, String hexPublicKey) {
+  static bool isValid(
+      String hexSignature, String message, String hexPublicKey) {
     if (bridge.nativeDvote == null)
       throw Exception("The library is not initialized");
 

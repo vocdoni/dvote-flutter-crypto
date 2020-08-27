@@ -9,6 +9,7 @@ import 'package:ffi/ffi.dart';
 // char *compute_address(const char *hex_private_key_ptr);
 // char *compute_private_key(const char *mnemonic_ptr, const char *hd_path_ptr);
 // char *compute_public_key(const char *hex_private_key_ptr);
+// char *compute_public_key_uncompressed(const char *hex_private_key_ptr);
 // char *digest_hex_claim(const char *hex_claim_ptr);
 // char *digest_string_claim(const char *str_claim_ptr);
 // void free_cstr(char *string);
@@ -46,6 +47,10 @@ typedef ComputePrivateKeyNative = Pointer<Utf8> Function(
 
 typedef ComputePublicKey = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef ComputePublicKeyNative = Pointer<Utf8> Function(Pointer<Utf8>);
+
+typedef ComputePublicKeyUncompressed = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef ComputePublicKeyUncompressedNative = Pointer<Utf8> Function(
+    Pointer<Utf8>);
 
 typedef ComputeAddress = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef ComputeAddressNative = Pointer<Utf8> Function(Pointer<Utf8>);
@@ -93,6 +98,11 @@ final ComputePrivateKey computePrivateKey = nativeDvote
 
 final ComputePublicKey computePublicKey = nativeDvote
     .lookup<NativeFunction<ComputePublicKeyNative>>("compute_public_key")
+    .asFunction();
+
+final ComputePublicKeyUncompressed computePublicKeyUncompressed = nativeDvote
+    .lookup<NativeFunction<ComputePublicKeyUncompressedNative>>(
+        "compute_public_key_uncompressed")
     .asFunction();
 
 final ComputeAddress computeAddress = nativeDvote
