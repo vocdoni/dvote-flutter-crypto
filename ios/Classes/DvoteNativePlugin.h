@@ -11,6 +11,8 @@ char *compute_private_key(const char *mnemonic_ptr, const char *hd_path_ptr);
 
 char *compute_public_key(const char *hex_private_key_ptr);
 
+char *compute_public_key_uncompressed(const char *hex_private_key_ptr);
+
 char *digest_hex_claim(const char *hex_claim_ptr);
 
 char *digest_string_claim(const char *str_claim_ptr);
