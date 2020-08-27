@@ -109,7 +109,7 @@ dev-links:
 # # OTHER
 # ##############################################################################
 
-## publish: Build, link and upload the current package to pub.dev/packages/dvote
+## publish: Build, link and upload the current package to pub.dev/packages/dvote_native
 .PHONY: publish
 publish: all
 	# Customize the Git ignore file so that binary artifacts are not skipped by Flutter
