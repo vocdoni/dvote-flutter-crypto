@@ -1,6 +1,6 @@
 name: dvote_native
 description: Flutter plugin to allow native mobile apps to interact with Vocdoni decentralized votes.
-version: 0.9.0
+version: 0.9.1
 homepage: https://gitlab.com/vocdoni/dvote-flutter-native
 repository: https://gitlab.com/vocdoni/dvote-flutter-native.git
 documentation: https://vocdoni.io/docs

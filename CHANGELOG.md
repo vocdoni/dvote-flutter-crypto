@@ -1,3 +1,7 @@
+## 0.9.1
+
+- Supporting signatures with `v` values below `0x1b-0x1c`
+
 ## 0.9.0
 
 - **Breaking**: Public keys are now compressed by default
