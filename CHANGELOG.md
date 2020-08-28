@@ -1,3 +1,7 @@
+## 0.9.2
+
+- Version bump
+
 ## 0.9.1
 
 - Supporting signatures with `v` values below `0x1b-0x1c`
