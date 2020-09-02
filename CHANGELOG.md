@@ -1,3 +1,7 @@
+## 0.9.3
+
+- Bring armv7 support back for iOS
+
 ## 0.9.2
 
 - Version bump
