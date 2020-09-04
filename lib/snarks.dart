@@ -21,18 +21,7 @@ class Snarks {
 
     // The actual native call
     final resultPtr = bridge.generateZkProof(strProvingKeyPath, strInputsParam);
-    final zkProofStr = Utf8.fromUtf8(resultPtr);
 
-    if (zkProofStr.startsWith("ERROR: ")) {
-      final errMessage = "" + zkProofStr.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final hash = "" + zkProofStr;
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return hash;
+    return bridge.handleResultStringPointer(resultPtr);
   }
 }

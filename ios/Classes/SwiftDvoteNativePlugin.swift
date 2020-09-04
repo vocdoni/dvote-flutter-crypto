@@ -27,6 +27,9 @@ public class SwiftDvoteNativePlugin: NSObject, FlutterPlugin {
     compute_public_key_uncompressed("0x0000000000000000000000000000000000000000000000000000000000000001");
     compute_address("0x0000000000000000000000000000000000000000000000000000000000000001");
 
+    encrypt_symmetric("", "");
+    decrypt_symmetric("", "");
+
     sign_message("hello", "0x0000000000000000000000000000000000000000000000000000000000000001");
     recover_signer("", "");
     is_valid("", "", "");

@@ -1,3 +1,7 @@
+## 0.9.4
+
+- Adding support for symmetric encryption using SecretBox (sodalite - NaCl)
+
 ## 0.9.3
 
 - Bring armv7 support back for iOS
