@@ -60,7 +60,7 @@ class _EncryptionScreenState extends State<EncryptionScreen> {
     if (_error != null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Hashing'),
+          title: const Text('Encryption'),
         ),
         body: Container(
           child: Text("Error: " + _error),
