@@ -10,8 +10,10 @@ import 'package:ffi/ffi.dart';
 // char *compute_private_key(const char *mnemonic_ptr, const char *hd_path_ptr);
 // char *compute_public_key(const char *hex_private_key_ptr);
 // char *compute_public_key_uncompressed(const char *hex_private_key_ptr);
+// char *decrypt_symmetric(const char *base64_cipher_bytes_ptr, const char *passphrase_ptr);
 // char *digest_hex_claim(const char *hex_claim_ptr);
 // char *digest_string_claim(const char *str_claim_ptr);
+// char *encrypt_symmetric(const char *message_ptr, const char *passphrase_ptr);
 // void free_cstr(char *string);
 // char *generate_mnemonic(int32_t size);
 // char *generate_zk_proof(const char *proving_key_path, const char *inputs);
@@ -69,6 +71,14 @@ typedef IsSignatureValid = int Function(
 typedef IsSignatureValidNative = Int32 Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>);
 
+typedef EncryptSymmetric = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
+typedef EncryptSymmetricNative = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>);
+
+typedef DecryptSymmetric = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
+typedef DecryptSymmetricNative = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>);
+
 typedef GenerateZkProof = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef GenerateZkProofNative = Pointer<Utf8> Function(
     Pointer<Utf8>, Pointer<Utf8>);
@@ -121,6 +131,14 @@ final IsSignatureValid isSignatureValid = nativeDvote
     .lookup<NativeFunction<IsSignatureValidNative>>("is_valid")
     .asFunction();
 
+final EncryptSymmetric encryptSymmetric = nativeDvote
+    .lookup<NativeFunction<EncryptSymmetricNative>>("encrypt_symmetric")
+    .asFunction();
+
+final DecryptSymmetric decryptSymmetric = nativeDvote
+    .lookup<NativeFunction<DecryptSymmetricNative>>("decrypt_symmetric")
+    .asFunction();
+
 final GenerateZkProof generateZkProof = nativeDvote
     .lookup<NativeFunction<GenerateZkProofNative>>("generate_zk_proof")
     .asFunction();
@@ -128,3 +146,25 @@ final GenerateZkProof generateZkProof = nativeDvote
 final FreeStringFunc freeCString = nativeDvote
     .lookup<NativeFunction<FreeStringFuncNative>>("free_cstr")
     .asFunction();
+
+///////////////////////////////////////////////////////////////////////////////
+// Response handling
+///////////////////////////////////////////////////////////////////////////////
+
+/// Returns a copy of the string returned by the native function and frees the given pointer.
+/// If the result contains an error, an Exception is raised.
+String handleResultStringPointer(Pointer<Utf8> resultPtr) {
+  final resultStr = Utf8.fromUtf8(resultPtr);
+
+  if (resultStr.startsWith("ERROR: ")) {
+    final errMessage = "" + resultStr.substring(7);
+    // Free the string pointer
+    freeCString(resultPtr);
+    throw Exception(errMessage);
+  }
+
+  final result = "" + resultStr;
+  // Free the string pointer
+  freeCString(resultPtr);
+  return result;
+}

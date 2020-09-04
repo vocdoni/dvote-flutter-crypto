@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import "./zk-snarks.dart";
+import "./encryption.dart";
 import "./hashing.dart";
 import './wallet.dart';
+import "./zk-snarks.dart";
 
 void main() async {
   runApp(MaterialApp(
@@ -23,17 +24,6 @@ class ExampleApp extends StatelessWidget {
           Card(
             child: ListTile(
               leading: FlutterLogo(size: 72.0),
-              title: Text('ZK Snarks'),
-              subtitle:
-                  Text('Generating zero knowledge proofs given some inputs'),
-              isThreeLine: true,
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ZkProofsScreen())),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: FlutterLogo(size: 72.0),
               title: Text('Wallet'),
               subtitle: Text('Generating wallets, computing keys and signing'),
               isThreeLine: true,
@@ -50,6 +40,28 @@ class ExampleApp extends StatelessWidget {
               isThreeLine: true,
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => HashingScreen())),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: FlutterLogo(size: 72.0),
+              title: Text('Encryption'),
+              subtitle:
+                  Text('Encrypting and decrypting strings using SecretBox'),
+              isThreeLine: true,
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => EncryptionScreen())),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: FlutterLogo(size: 72.0),
+              title: Text('ZK Snarks'),
+              subtitle:
+                  Text('Generating zero knowledge proofs given some inputs'),
+              isThreeLine: true,
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ZkProofsScreen())),
             ),
           ),
         ],

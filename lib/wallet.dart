@@ -24,19 +24,8 @@ class Wallet {
 
     // The actual native call
     final resultPtr = bridge.generateMnemonic(size);
-    final result = Utf8.fromUtf8(resultPtr);
 
-    if (result.startsWith("ERROR: ")) {
-      final errMessage = "" + result.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final mnemonic = "" + result; // make a copy before freing
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return mnemonic;
+    return bridge.handleResultStringPointer(resultPtr);
   }
 
   /// Computes the private key derived from the given seed phrase and HD path
@@ -49,19 +38,8 @@ class Wallet {
 
     // The actual native call
     final resultPtr = bridge.computePrivateKey(mnemonicPtr, hdPathPtr);
-    final result = Utf8.fromUtf8(resultPtr);
 
-    if (result.startsWith("ERROR: ")) {
-      final errMessage = "" + result.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final privKey = "0x" + result; // make a copy before freing
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return privKey;
+    return "0x" + bridge.handleResultStringPointer(resultPtr);
   }
 
   /// Computes the public key corresponding to the given private one
@@ -76,19 +54,8 @@ class Wallet {
     final resultPtr = uncompressed
         ? bridge.computePublicKeyUncompressed(privKeyPtr)
         : bridge.computePublicKey(privKeyPtr);
-    final result = Utf8.fromUtf8(resultPtr);
 
-    if (result.startsWith("ERROR: ")) {
-      final errMessage = "" + result.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final pubKey = "0x" + result; // make a copy before freing
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return pubKey;
+    return "0x" + bridge.handleResultStringPointer(resultPtr);
   }
 
   /// Computes the address corresponding to the given private key
@@ -100,19 +67,8 @@ class Wallet {
 
     // The actual native call
     final resultPtr = bridge.computeAddress(privKeyPtr);
-    final result = Utf8.fromUtf8(resultPtr);
 
-    if (result.startsWith("ERROR: ")) {
-      final errMessage = "" + result.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final address = "" + result; // make a copy before freing
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return address;
+    return bridge.handleResultStringPointer(resultPtr);
   }
 
   /// Computes the address corresponding to the given private key
@@ -125,19 +81,8 @@ class Wallet {
 
     // The actual native call
     final resultPtr = bridge.signMessage(messagePtr, privKeyPtr);
-    final result = Utf8.fromUtf8(resultPtr);
 
-    if (result.startsWith("ERROR: ")) {
-      final errMessage = "" + result.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final signature = "0x" + result; // make a copy before freing
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return signature;
+    return "0x" + bridge.handleResultStringPointer(resultPtr);
   }
 
   /// Computes the public key that signed the given messaga against the given signature
@@ -150,19 +95,8 @@ class Wallet {
 
     // The actual native call
     final resultPtr = bridge.recoverMessageSigner(hexSignaturePtr, messagePtr);
-    final result = Utf8.fromUtf8(resultPtr);
 
-    if (result.startsWith("ERROR: ")) {
-      final errMessage = "" + result.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final pubKey = "0x" + result; // make a copy before freing
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return pubKey;
+    return "0x" + bridge.handleResultStringPointer(resultPtr);
   }
 
   /// Checks whether the given signature corresponds to hexPublicKey for the given message

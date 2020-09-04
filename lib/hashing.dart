@@ -14,19 +14,8 @@ class Hashing {
 
     // The actual native call
     final resultPtr = bridge.digestHexClaim(claimDataPtr);
-    final hashStr = Utf8.fromUtf8(resultPtr);
 
-    if (hashStr.startsWith("ERROR: ")) {
-      final errMessage = "" + hashStr.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final hash = "" + hashStr;
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return hash;
+    return bridge.handleResultStringPointer(resultPtr);
   }
 
   /// Generates a Poseidon Hash of the given UTF8 string and returns it encoded in Base64
@@ -37,18 +26,7 @@ class Hashing {
 
     // The actual native call
     final resultPtr = bridge.digestStringClaim(claimDataPtr);
-    final hashStr = Utf8.fromUtf8(resultPtr);
 
-    if (hashStr.startsWith("ERROR: ")) {
-      final errMessage = "" + hashStr.substring(7);
-      // Free the string pointer
-      bridge.freeCString(resultPtr);
-      throw Exception(errMessage);
-    }
-
-    final hash = "" + hashStr;
-    // Free the string pointer
-    bridge.freeCString(resultPtr);
-    return hash;
+    return bridge.handleResultStringPointer(resultPtr);
   }
 }
