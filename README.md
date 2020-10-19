@@ -7,16 +7,18 @@ It provides out-of-the box support for cross-compiling native Rust code for all 
 ## Overview
 
 DVote Flutter Native provides:
-- ZK Snarks prove generation using [ZA](https://github.com/adria0/za/tree/master/binding/flutter/native)
-- Poseidon hashes for Hex strings and plain strings
+- ZK Snarks proof generation using [ZA](https://github.com/adria0/za/tree/master/binding/flutter/native)
+- Crypto wallet generation, key derivation and signing
+- Poseidon hash for hexadecimal and plain strings
+- Symmetric encryption using NaCl
 
 The following platforms and architectures are supported:
 - Android
-  - ARMv7
-  - ARM 64
+  - arm v7
+  - arm64
   - x86
 - iOS
-  - ARM 64
+  - arm64
   - x86_64
 
 Cross compilation for MacOS, Linux and Windows should not be difficult but is not available yet. 
