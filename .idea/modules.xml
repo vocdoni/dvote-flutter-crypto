@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/dvote_native.iml" filepath="$PROJECT_DIR$/dvote_native.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android/dvote_native_android.iml" filepath="$PROJECT_DIR$/android/dvote_native_android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/example/android/dvote_native_example_android.iml" filepath="$PROJECT_DIR$/example/android/dvote_native_example_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dvote_crypto.iml" filepath="$PROJECT_DIR$/dvote_crypto.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/dvote_crypto_android.iml" filepath="$PROJECT_DIR$/android/dvote_crypto_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/android/dvote_crypto_example_android.iml" filepath="$PROJECT_DIR$/example/android/dvote_crypto_example_android.iml" />
     </modules>
   </component>
 </project>

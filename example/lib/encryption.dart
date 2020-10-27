@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dvote_native/dvote_native.dart';
+import 'package:dvote_crypto/dvote_crypto.dart';
 
 const MESSAGE = "Hello word, I am a message encrypted with Rust";
 const PASSPHRASE = "This is a very secure passphrase";
@@ -29,8 +29,8 @@ class _EncryptionScreenState extends State<EncryptionScreen> {
 
     try {
       start = DateTime.now();
-      encrypted = SymmetricEncryption.encrypt(MESSAGE, PASSPHRASE);
-      decrypted = SymmetricEncryption.decrypt(encrypted, PASSPHRASE);
+      encrypted = Symmetric.encryptString(MESSAGE, PASSPHRASE);
+      decrypted = Symmetric.decryptString(encrypted, PASSPHRASE);
       end = DateTime.now();
     } catch (err) {
       error = err;

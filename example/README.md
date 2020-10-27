@@ -1,6 +1,6 @@
-# dvote_native_example
+# dvote_crypto_example
 
-Demonstrates how to use the dvote_native plugin.
+Demonstrates how to use the dvote_crypto plugin.
 
 ## Getting Started
 

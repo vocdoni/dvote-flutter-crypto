@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dvote_native/dvote_native.dart';
+import 'package:dvote_crypto/dvote_crypto.dart';
 
 const PUBLIC_KEY =
     "0x045a126cbbd3c66b6d542d40d91085e3f2b5db3bbc8cda0d59615deb08784e4f833e0bb082194790143c3d01cedb4a9663cb8c7bdaaad839cb794dd309213fcf30";
