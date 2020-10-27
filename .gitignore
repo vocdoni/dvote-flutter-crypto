@@ -5,6 +5,6 @@
 .pub/
 
 build/
-artifacts/
+ffi-artifacts/
 
 .last_build_id

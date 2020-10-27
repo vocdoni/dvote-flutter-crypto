@@ -9,7 +9,7 @@ It provides out-of-the box support for cross-compiling native Rust code for all 
 The library provides:
 - ZK Snarks proof generation using [ZA](https://github.com/adria0/za/tree/master/binding/flutter/native)
 - Crypto wallet generation, key derivation and signing
-- Poseidon hash for hexadecimal and plain strings (native version only)
+- Poseidon hash for hexadecimal and plain strings (native only)
 - Symmetric encryption using NaCl
 - Asymmetric encryption using NaCl (Dart only)
 
@@ -18,6 +18,7 @@ The following platforms and architectures are supported:
   - arm v7
   - arm64
   - x86
+  - x86_64
 - iOS
   - arm64
   - x86_64
@@ -86,7 +87,7 @@ Ensure that `ios/dvote_native.podspec` includes the following directives:
 +  s.static_framework = true
 +  s.vendored_libraries = "**/*.a"
    s.dependency 'Flutter'
-   s.platform = :ios, '8.0'
+   s.platform = :ios, '9.0'
 ...
 ```
 
