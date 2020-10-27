@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dvote_native/dvote_native.dart';
+import 'package:dvote_crypto/dvote_crypto.dart';
 
 const CIRCUIT_INPUT_VALUES = {
   "privateKey":

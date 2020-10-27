@@ -1,16 +1,17 @@
-# DVote Flutter Native
+# DVote Flutter Crypto
 
-This project is a Flutter Plugin that provides access to native code written in Rust. 
+This project is a Flutter Plugin that provides access to native cryptographic implementations written in Rust. It also provides a fallback pure-Dart implementation.
 
 It provides out-of-the box support for cross-compiling native Rust code for all available iOS and Android architectures and call it from plain Dart using [Foreign Function Interface](https://en.wikipedia.org/wiki/Foreign_function_interface).
 
 ## Overview
 
-DVote Flutter Native provides:
+The library provides:
 - ZK Snarks proof generation using [ZA](https://github.com/adria0/za/tree/master/binding/flutter/native)
 - Crypto wallet generation, key derivation and signing
-- Poseidon hash for hexadecimal and plain strings
+- Poseidon hash for hexadecimal and plain strings (native version only)
 - Symmetric encryption using NaCl
+- Asymmetric encryption using NaCl (Dart only)
 
 The following platforms and architectures are supported:
 - Android

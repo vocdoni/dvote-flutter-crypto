@@ -1,14 +1,19 @@
 import Flutter
 import UIKit
 
-public class SwiftDvoteNativePlugin: NSObject, FlutterPlugin {
+public class SwiftDvoteCryptoPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    // We are not using Flutter channels here
+    // NOTE: We are not using Flutter channels here
+
+    // let channel = FlutterMethodChannel(name: "dvote_crypto", binaryMessenger: registrar.messenger())
+    // let instance = SwiftDvoteCryptoPlugin()
+    // registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     // Noop
     result(nil)
+    // result("iOS " + UIDevice.current.systemVersion)
   }
 
   public func dummyMethodToEnforceBundling() {

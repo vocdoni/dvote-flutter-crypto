@@ -1,3 +1,9 @@
+## 0.10.0
+
+**Breaking changes**
+- The plugin is now renamed as `dvote_crypto`
+- Is exposes a common interface for pure Dart and Native implementations
+
 ## 0.9.4
 
 - Adding support for symmetric encryption using SecretBox (sodalite - NaCl)
