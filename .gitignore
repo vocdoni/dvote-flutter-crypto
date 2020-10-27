@@ -6,3 +6,5 @@
 
 build/
 artifacts/
+
+.last_build_id
