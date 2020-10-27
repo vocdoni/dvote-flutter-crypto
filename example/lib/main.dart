@@ -8,7 +8,7 @@ import "./zk-snarks.dart";
 
 void main() async {
   runApp(MaterialApp(
-    title: 'DVote Flutter Native',
+    title: 'DVote Flutter Crypto',
     home: ExampleApp(),
   ));
 }
@@ -18,7 +18,7 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('DVote Flutter Native'),
+        title: Text('DVote Flutter Crypto'),
       ),
       body: ListView(
         children: <Widget>[
