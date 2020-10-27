@@ -26,7 +26,7 @@ init:
 
 ## rust-targets: Compile the rust native libraries
 rust-targets:
-	cd rust && make init && make all
+	cd rust && make init && make all release=$(release)
 
 ## :
 
@@ -124,7 +124,10 @@ dev-links:
 
 ## publish: Build, link and upload the current package to pub.dev/packages/dvote_native
 .PHONY: publish
-publish: all
+publish:
+	@# make sure that only the arm64 artifact is bundled
+	rm -f ffi-artifacts/libdvote.a rust/target/universal/release/libdvote.a
+	make all release=true
 	# Customize the Git ignore file so that binary ffi-artifacts are not skipped by Flutter
 	@rm -f .gitignore_bak
 	@cp .gitignore .gitignore_bak

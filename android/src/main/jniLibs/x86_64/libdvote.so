@@ -1,1 +1,1 @@
-../../../../../ffi-artifacts/x86_64/libdvote.so
+../../../../../rust/target/x86_64-linux-android/release/libdvote.so

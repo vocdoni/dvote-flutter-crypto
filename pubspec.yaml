@@ -19,7 +19,7 @@ dependencies:
   bip39: ^1.0.3
   bip32: ^1.0.5
   pinenacl: ^0.1.2
-  # crypto: ^2.1.5
+  crypto: ^2.1.5
 
 dev_dependencies:
   flutter_test:
