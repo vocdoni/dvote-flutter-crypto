@@ -4,17 +4,15 @@ import 'package:dvote_crypto/dvote_crypto.dart';
 const MNEMONIC =
     "coral imitate swim axis note super success public poem frown verify then";
 
-class WalletScreen extends StatefulWidget {
+class SignatureScreen extends StatefulWidget {
   @override
-  _WalletScreenState createState() => _WalletScreenState();
+  _SignatureScreenState createState() => _SignatureScreenState();
 }
 
-class _WalletScreenState extends State<WalletScreen> {
-  String _randomMnemonic = "-",
-      _privateKey = "-",
-      _publicKey = "-",
-      _publicKeyUncompressed = "-",
-      _address = "-";
+class _SignatureScreenState extends State<SignatureScreen> {
+  String _signature = "-", _recoveredPublicKey = "-";
+  bool _valid = false;
+  String message = "hello";
   Duration _duration = Duration(seconds: 0);
 
   @override
@@ -25,27 +23,22 @@ class _WalletScreenState extends State<WalletScreen> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    final wallet1 = EthereumWallet.random(
-      size: 192,
-      // hdPath: "..."
-      // entityAddressHash: "0x00000000..."
-    );
-    final wallet2 = await EthereumWallet.randomAsync(
-      size: 192,
-      // hdPath: "..."
-      // entityAddressHash: "0x00000000..."
-    );
-    final wallet3 = EthereumWallet.fromMnemonic(MNEMONIC);
+    final wallet = EthereumWallet.fromMnemonic(MNEMONIC);
 
     setState(() {
       try {
         final start = DateTime.now();
-        _randomMnemonic = wallet1.mnemonic;
-        _privateKey = wallet1.privateKey;
 
-        _publicKey = wallet1.publicKey(uncompressed: false);
-        _publicKeyUncompressed = wallet1.publicKey(uncompressed: true);
-        _address = wallet1.address;
+        _signature = wallet.sign(message);
+        _recoveredPublicKey =
+            Signature.recoverSignerPubKey(_signature, message);
+
+        _valid = Signature.isValidSignature(
+            _signature, message, wallet.publicKey(uncompressed: true));
+
+        // Uncompressed should validate too
+        assert(Signature.isValidSignature(
+            _signature, message, wallet.publicKey(uncompressed: false)));
 
         _duration = start.difference(DateTime.now()).abs();
       } catch (err) {
@@ -57,21 +50,14 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final encryptionData = '''Random Mnemonic:
-$_randomMnemonic
 
----
+Signing "$message" with the private key:
+$_signature
 
-Computed private key from "${MNEMONIC.substring(0, 15)}..."
-$_privateKey
+Recovered public key:
+$_recoveredPublicKey
 
-Public Key:
-$_publicKey
-
-Uncompressed:
-$_publicKeyUncompressed
-
-Address:
-$_address
+Valid: $_valid
 
 Duration:
 ${_duration.inMicroseconds / 1000} ms

@@ -42,7 +42,7 @@ For a census of 1 million claims, ZK proof generation times are in the range of:
 
 ### Import the native code
 
-The Rust source code is located at [https://gitlab.com/vocdoni/dvote-rs-ffi](https://gitlab.com/vocdoni/dvote-rs-ffi) and mounted on the `rust` folder by git.
+The Rust source code is located at [https://github.com/vocdoni/dvote-rs-ffi](https://github.com/vocdoni/dvote-rs-ffi) and mounted on the `rust` folder by git.
 
 ```
 $ git submodule init
@@ -65,13 +65,14 @@ $ git submodule update
 
 Generated artifacts:
 - Android libraries
-  - `target/aarch64-linux-android/release/libdvote.so`
-  - `target/armv7-linux-androideabi/release/libdvote.so`
-  - `target/i686-linux-android/release/libdvote.so`
+  - `rust/target/aarch64-linux-android/release/libdvote.so`
+  - `rust/target/armv7-linux-androideabi/release/libdvote.so`
+  - `rust/target/i686-linux-android/release/libdvote.so`
+  - `rust/target/x86_64-linux-android/release/libdvote.so`
 - iOS library
-  - `target/universal/release/libdvote.a`
+  - `rust/target/universal/release/libdvote.a`
 - Bindings header
-  - `target/bindings.h`
+  - `rust/target/bindings.h`
 
 ### Reference the shared objects
 

@@ -74,11 +74,10 @@ class _ZkProofsScreenState extends State<ZkProofsScreen> {
     final provingKeyPath = join(tempDir.path, "proving.key");
     await File(provingKeyPath).writeAsBytes(provingKeyBytes);
 
-    // sync call
     try {
       final start = DateTime.now();
-      final zkProof =
-          Snarks.generateZkProof(CIRCUIT_INPUT_VALUES, provingKeyPath);
+      final zkProof = await Snarks.generateZkProofAsync(
+          CIRCUIT_INPUT_VALUES, provingKeyPath);
       final end = DateTime.now();
 
       final duration = end.difference(start);

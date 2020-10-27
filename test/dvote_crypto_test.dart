@@ -1,5 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
-// import 'package:dvote_crypto/dvote_crypto.dart';
+import "./unit/encryption.dart";
+import "./unit/hashing.dart";
+import "./unit/signature.dart";
+import "./unit/wallet.dart";
 
 void main() {
   // Testing native mobile architectures on desktop environments
@@ -8,4 +10,9 @@ void main() {
   // However, it is still possible to cross-compile to
   // Mac, Linux or Windows, load their respective library and
   // test from there.
+
+  encryption();
+  hashing();
+  signature();
+  wallet();
 }

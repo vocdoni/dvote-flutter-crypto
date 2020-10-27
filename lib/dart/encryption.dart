@@ -5,6 +5,10 @@ import 'package:crypto/crypto.dart'; // To hash the passphrase to a fixed length
 import 'package:pinenacl/secret.dart'
     show SecretBox, SealedBox, PrivateKey, PublicKey, EncryptedMessage;
 
+// /////////////////////////////////////////////////////////////////////////////
+// IMPLEMENTATION
+// /////////////////////////////////////////////////////////////////////////////
+
 /// Encrypts the given data using NaCl SecretBox and returns a Uint8List containing `nonce[24] + cipherText[]`.
 /// The 24 first bytes represent the nonce, and the rest of the buffer contains the cipher text.
 Uint8List encryptSymmetricRaw(Uint8List buffer, String passphrase) {
