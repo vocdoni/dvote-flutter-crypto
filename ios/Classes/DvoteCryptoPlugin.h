@@ -1,6 +1,6 @@
 #import <Flutter/Flutter.h>
 
-@interface DvoteNativePlugin : NSObject<FlutterPlugin>
+@interface DvoteCryptoPlugin : NSObject<FlutterPlugin>
 @end
 
 // NOTE: Append the lines below to ios/Classes/DvoteNativePlugin.h

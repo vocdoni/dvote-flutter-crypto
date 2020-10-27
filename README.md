@@ -1,22 +1,24 @@
-# DVote Flutter Native
+# DVote Flutter Crypto
 
-This project is a Flutter Plugin that provides access to native code written in Rust. 
+This project is a Flutter Plugin that provides access to native cryptographic implementations written in Rust. It also provides a fallback pure-Dart implementation.
 
 It provides out-of-the box support for cross-compiling native Rust code for all available iOS and Android architectures and call it from plain Dart using [Foreign Function Interface](https://en.wikipedia.org/wiki/Foreign_function_interface).
 
 ## Overview
 
-DVote Flutter Native provides:
+The library provides:
 - ZK Snarks proof generation using [ZA](https://github.com/adria0/za/tree/master/binding/flutter/native)
 - Crypto wallet generation, key derivation and signing
-- Poseidon hash for hexadecimal and plain strings
+- Poseidon hash for hexadecimal and plain strings (native only)
 - Symmetric encryption using NaCl
+- Asymmetric encryption using NaCl (Dart only)
 
 The following platforms and architectures are supported:
 - Android
   - arm v7
   - arm64
   - x86
+  - x86_64
 - iOS
   - arm64
   - x86_64
@@ -40,7 +42,7 @@ For a census of 1 million claims, ZK proof generation times are in the range of:
 
 ### Import the native code
 
-The Rust source code is located at [https://gitlab.com/vocdoni/dvote-rs-ffi](https://gitlab.com/vocdoni/dvote-rs-ffi) and mounted on the `rust` folder by git.
+The Rust source code is located at [https://github.com/vocdoni/dvote-rs-ffi](https://github.com/vocdoni/dvote-rs-ffi) and mounted on the `rust` folder by git.
 
 ```
 $ git submodule init
@@ -63,13 +65,14 @@ $ git submodule update
 
 Generated artifacts:
 - Android libraries
-  - `target/aarch64-linux-android/release/libdvote.so`
-  - `target/armv7-linux-androideabi/release/libdvote.so`
-  - `target/i686-linux-android/release/libdvote.so`
+  - `rust/target/aarch64-linux-android/release/libdvote.so`
+  - `rust/target/armv7-linux-androideabi/release/libdvote.so`
+  - `rust/target/i686-linux-android/release/libdvote.so`
+  - `rust/target/x86_64-linux-android/release/libdvote.so`
 - iOS library
-  - `target/universal/release/libdvote.a`
+  - `rust/target/universal/release/libdvote.a`
 - Bindings header
-  - `target/bindings.h`
+  - `rust/target/bindings.h`
 
 ### Reference the shared objects
 
@@ -85,7 +88,7 @@ Ensure that `ios/dvote_native.podspec` includes the following directives:
 +  s.static_framework = true
 +  s.vendored_libraries = "**/*.a"
    s.dependency 'Flutter'
-   s.platform = :ios, '8.0'
+   s.platform = :ios, '9.0'
 ...
 ```
 

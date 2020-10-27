@@ -1,1 +1,1 @@
-../rust/target/universal/release/libdvote.a
+../ffi-artifacts/libdvote.a
