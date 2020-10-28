@@ -1,5 +1,6 @@
-import '../dart/stubs.dart' if (dart.library.io) '../native/hashing.dart'
-    as implementation;
+// import '../dart/stubs.dart' if (dart.library.io) '../native/hashing.dart'
+//     as implementation;
+import '../dart/stubs.dart' as implementation;
 // import '../native/hashing.dart';
 
 // /////////////////////////////////////////////////////////////////////////////

@@ -1,8 +1,9 @@
 // import 'dart:typed_data';
 import 'package:dvote_crypto/util/asyncify.dart';
 
-import '../dart/signature.dart' if (dart.library.io) '../native/signature.dart'
-    as implementation;
+// import '../dart/signature.dart' if (dart.library.io) '../native/signature.dart'
+//     as implementation;
+import '../dart/signature.dart' as implementation;
 // import '../native/signature.dart' as implementation;
 
 // /////////////////////////////////////////////////////////////////////////////

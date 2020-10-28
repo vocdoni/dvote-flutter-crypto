@@ -1,8 +1,9 @@
 // import 'dart:typed_data';
 import 'package:dvote_crypto/util/asyncify.dart';
 
-import '../dart/stubs.dart' if (dart.library.io) '../native/snarks.dart'
-    as implementation;
+// import '../dart/stubs.dart' if (dart.library.io) '../native/snarks.dart'
+//     as implementation;
+import '../dart/stubs.dart' as implementation;
 // import '../native/snarks.dart' as implementation;
 
 // /////////////////////////////////////////////////////////////////////////////

@@ -6,8 +6,9 @@ import 'package:dvote_crypto/util/asyncify.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import "package:hex/hex.dart";
 
-import '../dart/wallet.dart' if (dart.library.io) '../native/wallet.dart'
-    as implementation;
+// import '../dart/wallet.dart' if (dart.library.io) '../native/wallet.dart'
+//     as implementation;
+import '../dart/wallet.dart' as implementation;
 // import '../native/wallet.dart' as implementation;
 
 // /////////////////////////////////////////////////////////////////////////////

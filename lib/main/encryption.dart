@@ -1,8 +1,9 @@
 import 'dart:typed_data';
 import 'package:dvote_crypto/util/asyncify.dart';
 
-import '../dart/encryption.dart'
-    if (dart.library.io) '../native/encryption.dart' as implementation;
+// import '../dart/encryption.dart'
+//     if (dart.library.io) '../native/encryption.dart' as implementation;
+import '../dart/encryption.dart' as implementation;
 // import '../native/encryption.dart' as implementation;
 
 // All of the methods below provide two versions, a sync and an async one.

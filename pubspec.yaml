@@ -1,6 +1,6 @@
 name: dvote_crypto
 description: Flutter library providing both native and pure Dart implementations of cryptographic primitives
-version: 0.10.0
+version: 0.10.1
 homepage: https://github.com/vocdoni/dvote-flutter-crypto
 repository: https://github.com/vocdoni/dvote-flutter-crypto.git
 documentation: https://docs.vocdoni.io
