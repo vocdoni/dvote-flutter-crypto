@@ -182,6 +182,48 @@ When we are done using `greetingStr`, tell Rust to free it, since the Rust imple
 freeGreeting(resultPtr);
 ```
 
+## Usage
+
+### HD Wallet management
+Generating mnemonics and computing private/public keys
+
+```dart
+final wallet = EthereumWallet.random(hdPath: "m/44'/60'/0'/0/5");
+final mnemonic = wallet.mnemonic;
+final privKey = wallet.privateKey;
+final pubKey = wallet.publicKey;
+final addr = wallet.address;
+```
+
+### Signing
+Computing signatures using ECDSA cryptography
+
+```dart
+// Signing plain text
+final hexSignature = signString(messageToSign, privateKey);
+final recoveredPubKey = recoverSignerPubKey(hexSignature, messageToSign);
+final valid = isValidSignature(hexSignature, messageToSign, publicKey);
+
+// Signing reproduceable JSON data
+final hexSignature2 = signJsonPayload({"hello": 1234}, privateKey);
+final recoveredPubKey = recoverJsonSignerPubKey(hexSignature2, {"hello": 1234});
+final valid2 = isValidJsonSignature(hexSignature2, {"hello": 1234}, publicKey);
+```
+
+Also available as async non-UI blocking functions:
+
+```dart
+// Signing plain text
+final hexSignature = await signStringAsync(messageToSign, privateKey);
+final recoveredPubKey = await recoverSignerPubKeyAsync(hexSignature, messageToSign);
+final valid = await isValidSignatureAsync(hexSignature, messageToSign, publicKey);
+
+// Signing reproduceable JSON data
+final hexSignature2 = await signJsonPayloadAsync({"hello": 1234}, privateKey);
+final recoveredPubKey = await recoverJsonSignerPubKeyAsync(hexSignature2, {"hello": 1234});
+final valid2 = await isValidJsonSignatureAsync(hexSignature2, {"hello": 1234}, publicKey);
+```
+
 ## Publishing to pub.dev
 
 - Run `make init` to start developing
@@ -193,3 +235,7 @@ freeGreeting(resultPtr);
 - https://github.com/dart-lang/samples/blob/master/ffi/structs/structs.dart
 - https://mozilla.github.io/firefox-browser-architecture/experiments/2017-09-06-rust-on-ios.html
 - https://mozilla.github.io/firefox-browser-architecture/experiments/2017-09-21-rust-on-android.html
+
+## TO DO
+
+- [ ] Document examples of Poseidon hash, generate Merkle Proofs and ZK proofs
