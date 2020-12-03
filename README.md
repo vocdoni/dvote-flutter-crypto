@@ -38,7 +38,141 @@ For a census of 1 million claims, ZK proof generation times are in the range of:
   - Such data should be hosted elsewhere other than the repo itself
   - Standard proving keys can be placed on a CDN/IPFS and be fetched+cached when the app launches
 
-## Getting started
+## Usage
+
+Add [dvote_crypto](https://pub.dev/packages/dvote_crypto) to your `pubspec.yaml` file
+
+```yaml
+dependencies:
+  dvote_crypto: ^0.10.1
+```
+
+### HD Wallets
+Generating mnemonics and computing private/public keys
+
+```dart
+final wallet = EthereumWallet.random(hdPath: "m/44'/60'/0'/0/5");
+final mnemonic = wallet.mnemonic;
+final privKey = wallet.privateKey;
+final pubKey = wallet.publicKey;
+final addr = wallet.address;
+```
+
+### Signing
+Computing signatures using ECDSA cryptography
+
+```dart
+import 'package:dvote_crypto/dvote_crypto.dart';
+
+// Signing plain text
+final hexSignature = signString(messageToSign, privateKey);
+final recoveredPubKey = recoverSignerPubKey(hexSignature, messageToSign);
+final valid = isValidSignature(hexSignature, messageToSign, publicKey);
+assert(valid);
+
+// Signing reproduceable JSON data
+final hexSignature2 = signJsonPayload({"hello": 1234}, privateKey);
+final recoveredPubKey = recoverJsonSignerPubKey(hexSignature2, {"hello": 1234});
+final valid2 = isValidJsonSignature(hexSignature2, {"hello": 1234}, publicKey);
+assert(valid2);
+```
+
+Also available as async non-UI blocking functions:
+
+```dart
+import 'package:dvote_crypto/dvote_crypto.dart';
+
+// Signing plain text
+final hexSignature = await signStringAsync(messageToSign, privateKey);
+final recoveredPubKey = await recoverSignerPubKeyAsync(hexSignature, messageToSign);
+final valid = await isValidSignatureAsync(hexSignature, messageToSign, publicKey);
+assert(valid);
+
+// Signing reproduceable JSON data
+final hexSignature2 = await signJsonPayloadAsync({"hello": 1234}, privateKey);
+final recoveredPubKey = await recoverJsonSignerPubKeyAsync(hexSignature2, {"hello": 1234});
+final valid2 = await isValidJsonSignatureAsync(hexSignature2, {"hello": 1234}, publicKey);
+assert(valid2);
+```
+
+### Symmetric Encryption
+NaCl SecretBox string and byte encryption
+
+```dart
+import 'package:dvote_crypto/dvote_crypto.dart';
+
+String encrypted = Symmetric.encryptString("hello", "super-secret");
+String decrypted = Symmetric.decryptString(encrypted, "super-secret");
+assert(decrypted == "hello");
+
+encrypted = await Symmetric.encryptStringAsync("hello", "super-secret");
+decrypted = await Symmetric.decryptStringAsync(encrypted, "super-secret");
+assert(decrypted == "hello");
+
+// Available
+static Uint8List encryptRaw(Uint8List buffer, String passphrase);
+static Future<Uint8List> encryptRawAsync(Uint8List buffer, String passphrase);
+static String encryptBytes(Uint8List buffer, String passphrase);
+static Future<String> encryptBytesAsync(Uint8List buffer, String passphrase);
+static String encryptString(String message, String passphrase);
+static Future<String> encryptStringAsync(String message, String passphrase);
+static Uint8List decryptRaw(Uint8List encryptedBuffer, String passphrase);
+static Future<Uint8List> decryptRawAsync(Uint8List encryptedBuffer, String passphrase);
+static Uint8List decryptBytes(String encryptedBase64, String passphrase);
+static Future<Uint8List> decryptBytesAsync(String encryptedBase64, String passphrase);
+```
+
+### Asymmetric Encryption
+NaCl SealedBox string and byte encryption
+
+```dart
+import 'package:dvote_crypto/dvote_crypto.dart';
+
+String encrypted = Asymmetric.encryptString("hello", hexPublicKey);
+String decrypted = Asymmetric.decryptString(encrypted, hexPrivateKey);
+assert(decrypted == "hello");
+
+encrypted = await Asymmetric.encryptStringAsync("hello", hexPublicKey);
+decrypted = await Asymmetric.decryptStringAsync(encrypted, hexPrivateKey);
+assert(decrypted == "hello");
+
+// Available
+static Uint8List encryptRaw(Uint8List payload, String hexPublicKey);
+static Future<Uint8List> encryptRawAsync(Uint8List payload, String hexPublicKey);
+static String encryptBytes(Uint8List payload, String hexPublicKey);
+static Future<String> encryptBytesAsync(Uint8List payload, String hexPublicKey);
+static String encryptString(String message, String hexPublicKey);
+static Future<String> encryptStringAsync(String message, String hexPublicKey);
+static Uint8List decryptRaw(Uint8List encryptedBuffer, String hexPrivateKey);
+static Future<Uint8List> decryptRawAsync(Uint8List encryptedBuffer, String hexPrivateKey);
+static Uint8List decryptBytes(String encryptedBase64, String hexPrivateKey);
+static Future<Uint8List> decryptBytesAsync(String encryptedBase64, String hexPrivateKey);
+static String decryptString(String encryptedBase64, String hexPrivateKey);
+static Future<String> decryptStringAsync(String encryptedBase64, String hexPrivateKey);
+```
+
+### Hashing
+Poseidon hash is only available when using the native Rust library
+
+```dart
+import 'package:dvote_crypto/dvote_crypto.dart';
+
+final hash1 = Hashing.digestHexClaim("0x1234...");
+final hash2 = Hashing.digestStringClaim("Hello world");
+```
+
+### Zero Knowledge Snarks
+Generating ZK proofs is only available when using the native Rust library
+
+```dart
+import 'package:dvote_crypto/dvote_crypto.dart';
+
+final circuitInputs = {...};
+final proof1 = Snarks.generateZkProof(circuitInputs, "/path/to/proving.key");
+final proof2 = await Snarks.generateZkProofAsync(circuitInputs, "/path/to/proving.key");
+```
+
+## Development
 
 ### Import the native code
 
@@ -182,48 +316,6 @@ print("- Response string:  $greetingStr");
 When we are done using `greetingStr`, tell Rust to free it, since the Rust implementation kept it alive for us to use it.
 ```dart
 freeGreeting(resultPtr);
-```
-
-## Usage
-
-### HD Wallet management
-Generating mnemonics and computing private/public keys
-
-```dart
-final wallet = EthereumWallet.random(hdPath: "m/44'/60'/0'/0/5");
-final mnemonic = wallet.mnemonic;
-final privKey = wallet.privateKey;
-final pubKey = wallet.publicKey;
-final addr = wallet.address;
-```
-
-### Signing
-Computing signatures using ECDSA cryptography
-
-```dart
-// Signing plain text
-final hexSignature = signString(messageToSign, privateKey);
-final recoveredPubKey = recoverSignerPubKey(hexSignature, messageToSign);
-final valid = isValidSignature(hexSignature, messageToSign, publicKey);
-
-// Signing reproduceable JSON data
-final hexSignature2 = signJsonPayload({"hello": 1234}, privateKey);
-final recoveredPubKey = recoverJsonSignerPubKey(hexSignature2, {"hello": 1234});
-final valid2 = isValidJsonSignature(hexSignature2, {"hello": 1234}, publicKey);
-```
-
-Also available as async non-UI blocking functions:
-
-```dart
-// Signing plain text
-final hexSignature = await signStringAsync(messageToSign, privateKey);
-final recoveredPubKey = await recoverSignerPubKeyAsync(hexSignature, messageToSign);
-final valid = await isValidSignatureAsync(hexSignature, messageToSign, publicKey);
-
-// Signing reproduceable JSON data
-final hexSignature2 = await signJsonPayloadAsync({"hello": 1234}, privateKey);
-final recoveredPubKey = await recoverJsonSignerPubKeyAsync(hexSignature2, {"hello": 1234});
-final valid2 = await isValidJsonSignatureAsync(hexSignature2, {"hello": 1234}, publicKey);
 ```
 
 ## Publishing to pub.dev
