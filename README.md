@@ -134,8 +134,10 @@ src
         │   └── libdvote.so@ -> ../../../../../rust/target/aarch64-linux-android/release/libdvote.so
         ├── armeabi-v7a
         │   └── libdvote.so@ -> ../../../../../rust/target/armv7-linux-androideabi/release/libdvote.so
-        └── x86
-            └── libdvote.so@ -> ../../../../../rust/target/i686-linux-android/release/libdvote.so
+        ├── x86
+        │   └── libdvote.so@ -> ../../../../../rust/target/i686-linux-android/release/libdvote.so
+        └── x86_64
+            └── libdvote.so@ -> ../../../../../rust/target/x86_64-linux-android/release/libdvote.so
 ```
 
 As before, if you are not using Flutter channels, the methods within `android/src/main/kotlin/com/dvote/dvote_native/DvoteNativePlugin.kt` can be left empty.
