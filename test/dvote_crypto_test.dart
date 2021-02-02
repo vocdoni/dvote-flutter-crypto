@@ -11,8 +11,8 @@ void main() {
   // Mac, Linux or Windows, load their respective library and
   // test from there.
 
-  encryption();
-  hashing();
-  signature();
+  // encryption();
+  // hashing();
+  // signature();
   wallet();
 }
