@@ -26,7 +26,10 @@ class Signature {
 
   /// Recover the public key that signed the given message into the given signature
   static String recoverSignerPubKey(String hexSignature, String strPayload,
-      {int chainId}) {
+      {int chainId, bool uncompressed = false}) {
+    if (uncompressed)
+      return implementation.recoverExpandedSignerPubKey(
+          hexSignature, strPayload, chainId);
     return implementation.recoverSignerPubKey(
         hexSignature, strPayload, chainId);
   }
@@ -34,7 +37,11 @@ class Signature {
   /// Recover the public key that signed the given message into the given signature
   static Future<String> recoverSignerPubKeyAsync(
       String hexSignature, String strPayload,
-      {int chainId}) {
+      {int chainId, bool uncompressed = false}) {
+    if (uncompressed)
+      return runAsync<String, String Function(String, String, int)>(
+          implementation.recoverExpandedSignerPubKey,
+          [hexSignature, strPayload, chainId]);
     return runAsync<String, String Function(String, String, int)>(
         implementation.recoverSignerPubKey,
         [hexSignature, strPayload, chainId]);

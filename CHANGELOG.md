@@ -1,3 +1,6 @@
+## 0.10.2
+- Use compressed public keys by default
+  
 ## 0.10.1
 
 - Temporary backoff: Using pure Dart until an iOS issue is addressed, failing to bundle native code when packaged for app store distribution

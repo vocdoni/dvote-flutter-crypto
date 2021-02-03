@@ -51,8 +51,8 @@ String signString(String message, String hexPrivateKey, int chainId) {
   }
 }
 
-/// Recover the public key that signed the given message into the given signature
-String recoverSignerPubKey(
+/// Recover the expanded public key that signed the given message into the given signature
+String recoverExpandedSignerPubKey(
     String hexSignature, String strMessage, int chainId) {
   if (hexSignature == null ||
       hexSignature.length < 130 ||
@@ -89,6 +89,47 @@ String recoverSignerPubKey(
   }
 }
 
+/// Recover the compressed public key that signed the given message into the given signature
+String recoverSignerPubKey(
+    String hexSignature, String strMessage, int chainId) {
+  if (hexSignature == null ||
+      hexSignature.length < 130 ||
+      hexSignature.length > 132)
+    throw Exception("The hexSignature is invalid");
+  else if (strMessage == null) throw Exception("The payload is empty");
+
+  // TODO: `CHAIN ID` IS NOT USED
+
+  try {
+    final packedPayload = _packPayloadForSignature(strMessage);
+    final messageHashBytes = crypto.keccak256(packedPayload);
+
+    String rStr, sStr, vStr;
+    if (hexSignature.startsWith("0x")) {
+      rStr = hexSignature.substring(0 + 2, 64 + 2);
+      sStr = hexSignature.substring(64 + 2, 128 + 2);
+      vStr = hexSignature.substring(128 + 2, 130 + 2);
+    } else {
+      rStr = hexSignature.substring(0, 64);
+      sStr = hexSignature.substring(64, 128);
+      vStr = hexSignature.substring(128, 130);
+    }
+
+    final r = BigInt.parse(rStr, radix: 16);
+    final s = BigInt.parse(sStr, radix: 16);
+    final v = int.parse(vStr, radix: 16);
+
+    final signatureData = crypto.MsgSignature(r, s, v);
+    final pubKey =
+        HEX.encode(crypto.ecRecover(messageHashBytes, signatureData));
+    return "0x" +
+        HEX.encode(crypto.compressPublicKey(HEX.decode("04" + pubKey)));
+    // return "0x04" + HEX.encode(pubKey);
+  } catch (err) {
+    throw Exception("The signature could not be verified: $err");
+  }
+}
+
 /// Check whether the given signature is valid and belongs to the given message and
 /// public key
 bool isValidSignature(
@@ -114,8 +155,8 @@ bool isValidSignature(
   // TODO: CHAIN ID IS NOT USED
 
   try {
-    final pubKeyBytes =
-        Uint8List.fromList(HEX.decode(hexPublicKey.substring(2))); // Strip 04
+    final pubKeyBytes = Uint8List.fromList(
+        HEX.decode(hexPublicKey.substring(2))); // Strip 04 or 02 or 03
 
     final packedPayload = _packPayloadForSignature(strMessage);
     final messageHashBytes = crypto.keccak256(packedPayload);

@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dvote_crypto/dvote_crypto.dart';
+import 'package:hex/hex.dart';
+import 'package:web3dart/crypto.dart';
 
 void signature() {
   syncSignature();
@@ -32,14 +34,16 @@ void syncSignature() {
     String message = "hello";
     String signature =
         "0x9d06b4f31641aba791bb79dfb211c1141c4b3e346f230c05256c657c5c10916229a8f4cee40bfdbe0d90061d60e712ec5ec0c59cb90321814848ec2f6f7763181b";
-    String recoveredPubKey = Signature.recoverSignerPubKey(signature, message);
+    String recoveredPubKey =
+        Signature.recoverSignerPubKey(signature, message, uncompressed: true);
     expect(recoveredPubKey, originalPublicKey,
         reason: "The public key should match");
 
     message = "àèìòù";
     signature =
         "0x2cbf9ae0de3df7e975b68b4cf67e14a0b49a1f8ed5d54c6c13d2ff936585036232fb53846fd49331bf8832fcd7e4517c3f07c951b95d5e0e102e572bbbadda811c";
-    recoveredPubKey = Signature.recoverSignerPubKey(signature, message);
+    recoveredPubKey =
+        Signature.recoverSignerPubKey(signature, message, uncompressed: true);
     expect(recoveredPubKey, originalPublicKey,
         reason: "The public key should match");
   });
@@ -84,7 +88,7 @@ void syncSignature() {
     EthereumWallet wallet = EthereumWallet.fromMnemonic(
         'poverty castle step need baby chair measure leader dress print cruise baby avoid fee sock shoulder rate opinion');
 
-    final originalPublicKey = wallet.publicKey(uncompressed: true);
+    final originalPublicKey = wallet.publicKey(uncompressed: false);
 
     String message = "hello";
     String signature = Signature.signString(message, wallet.privateKey);
@@ -103,7 +107,7 @@ void syncSignature() {
     EthereumWallet wallet = EthereumWallet.fromMnemonic(
         'poverty castle step need baby chair measure leader dress print cruise baby avoid fee sock shoulder rate opinion');
 
-    final expectedPublicKey = wallet.publicKey(uncompressed: true);
+    final expectedPublicKey = wallet.publicKey(uncompressed: false);
 
     String message = "hello";
     String signature = Signature.signString(message, wallet.privateKey);
@@ -147,16 +151,18 @@ void asyncSignature() {
     String message = "hello";
     String signature =
         "0x9d06b4f31641aba791bb79dfb211c1141c4b3e346f230c05256c657c5c10916229a8f4cee40bfdbe0d90061d60e712ec5ec0c59cb90321814848ec2f6f7763181b";
-    String recoveredPubKey =
-        await Signature.recoverSignerPubKeyAsync(signature, message);
+    String recoveredPubKey = await Signature.recoverSignerPubKeyAsync(
+        signature, message,
+        uncompressed: true);
     expect(recoveredPubKey, originalPublicKey,
         reason: "The public key should match");
 
     message = "àèìòù";
     signature =
         "0x2cbf9ae0de3df7e975b68b4cf67e14a0b49a1f8ed5d54c6c13d2ff936585036232fb53846fd49331bf8832fcd7e4517c3f07c951b95d5e0e102e572bbbadda811c";
-    recoveredPubKey =
-        await Signature.recoverSignerPubKeyAsync(signature, message);
+    recoveredPubKey = await Signature.recoverSignerPubKeyAsync(
+        signature, message,
+        uncompressed: true);
     expect(recoveredPubKey, originalPublicKey,
         reason: "The public key should match");
   });
@@ -207,7 +213,7 @@ void asyncSignature() {
     EthereumWallet wallet = EthereumWallet.fromMnemonic(
         'poverty castle step need baby chair measure leader dress print cruise baby avoid fee sock shoulder rate opinion');
 
-    final originalPublicKey = wallet.publicKey(uncompressed: true);
+    final originalPublicKey = wallet.publicKey();
 
     String message = "hello";
     String signature =
@@ -229,7 +235,7 @@ void asyncSignature() {
     EthereumWallet wallet = EthereumWallet.fromMnemonic(
         'poverty castle step need baby chair measure leader dress print cruise baby avoid fee sock shoulder rate opinion');
 
-    final expectedPublicKey = wallet.publicKey(uncompressed: true);
+    final expectedPublicKey = wallet.publicKey(uncompressed: false);
 
     String message = "hello";
     String signature =

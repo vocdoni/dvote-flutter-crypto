@@ -34,11 +34,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
             Signature.recoverSignerPubKey(_signature, message);
 
         _valid = Signature.isValidSignature(
-            _signature, message, wallet.publicKey(uncompressed: true));
-
-        // Uncompressed should validate too
-        assert(Signature.isValidSignature(
-            _signature, message, wallet.publicKey(uncompressed: false)));
+            _signature, message, wallet.publicKey(uncompressed: false));
 
         _duration = start.difference(DateTime.now()).abs();
       } catch (err) {
