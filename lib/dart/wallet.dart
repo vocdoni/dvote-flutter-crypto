@@ -33,23 +33,13 @@ Uint8List publicKeyBytes(String hexPrivateKey, bool uncompressed) {
   final pubKeyBytes = privateKeyToPublic(privKeyBigInt);
 
   List<int> result = List<int>();
+  result.add(4);
+  result.addAll(pubKeyBytes);
   if (uncompressed) {
-    result.add(4);
-    result.addAll(pubKeyBytes);
     return Uint8List.fromList(result);
-  }
-
-  final xBytes = pubKeyBytes.sublist(0, 32);
-  final ySign = pubKeyBytes[63];
-
-  if (ySign & 0x01 == 0) {
-    result.add(2);
-    result.addAll(xBytes);
   } else {
-    result.add(3);
-    result.addAll(xBytes);
+    return compressPublicKey(Uint8List.fromList(result));
   }
-  return Uint8List.fromList(result);
 }
 
 String address(String privateKey) {
