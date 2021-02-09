@@ -19,21 +19,16 @@ import '../dart/wallet.dart' as implementation;
 class EthereumWallet {
   final String mnemonic;
   final String hdPath;
-  final Uint8List entityAddressHashBytes; // HEX without 0x (may be null)
+  final Uint8List entityAddressHash; // HEX without 0x (may be null)
 
   /// Creates an Ethereum wallet for the given mnemonic, using the (optional) HD path.
   /// If an entityAddress is defined, the results private key, public key and address will
   /// be a unique derivation for the given entity that no one else will be able to correlate.
   EthereumWallet.fromMnemonic(this.mnemonic,
-      {String hdPath = DEFAULT_HD_PATH, String entityAddressHash})
-      : this.hdPath = hdPath,
-        this.entityAddressHashBytes = entityAddressHash is String
-            ? HEX.decode(entityAddressHash.replaceAll(RegExp(r"^0x"), ""))
-            : null {
+      {this.hdPath = DEFAULT_HD_PATH, this.entityAddressHash}) {
     if (!bip39.validateMnemonic(mnemonic))
       throw Exception("The provided mnemonic is not valid");
-    else if (entityAddressHashBytes is Uint8List &&
-        entityAddressHashBytes.length != 32)
+    else if (entityAddressHash is Uint8List && entityAddressHash.length != 32)
       throw Exception("Invalid address hash length");
   }
 
@@ -43,14 +38,11 @@ class EthereumWallet {
   EthereumWallet.random(
       {int size = 192,
       String hdPath = DEFAULT_HD_PATH,
-      String entityAddressHash})
+      Uint8List entityAddressHash})
       : this.mnemonic = implementation.makeRandomMnemonic(size),
         this.hdPath = hdPath,
-        this.entityAddressHashBytes = entityAddressHash is String
-            ? HEX.decode(entityAddressHash.replaceAll(RegExp(r"^0x"), ""))
-            : null {
-    if (entityAddressHashBytes is Uint8List &&
-        entityAddressHashBytes.length != 32)
+        this.entityAddressHash = entityAddressHash {
+    if (entityAddressHash is Uint8List && entityAddressHash.length != 32)
       throw Exception("Invalid address hash length");
   }
 
@@ -60,7 +52,7 @@ class EthereumWallet {
   static Future<EthereumWallet> randomAsync(
       {int size = 192,
       String hdPath = DEFAULT_HD_PATH,
-      String entityAddressHash}) async {
+      Uint8List entityAddressHash}) async {
     final mnemonic = await runAsync<String, String Function(int)>(
         implementation.makeRandomMnemonic, [size]);
 
@@ -73,15 +65,13 @@ class EthereumWallet {
   Uint8List get privateKeyBytes {
     final privKeyBytes = implementation.privateKeyBytes(mnemonic, hdPath);
     assert(privKeyBytes.length == 32, "Invalid private key length");
-    assert(
-        entityAddressHashBytes is! Uint8List ||
-            entityAddressHashBytes.length == 32,
+    assert(entityAddressHash is! Uint8List || entityAddressHash.length == 32,
         "Invalid entity address hash length");
 
     // XOR the 32 bytes of the generated private key using the entity address hash
-    if (entityAddressHashBytes is Uint8List) {
-      for (int i = entityAddressHashBytes.length - 1; i >= 0; i--) {
-        privKeyBytes[i] = privKeyBytes[i] ^ entityAddressHashBytes[i];
+    if (entityAddressHash is Uint8List) {
+      for (int i = entityAddressHash.length - 1; i >= 0; i--) {
+        privKeyBytes[i] = privKeyBytes[i] ^ entityAddressHash[i];
       }
       if (!implementation.isValidPrivateKey(privKeyBytes))
         throw Exception("The private key derived for the entity is not valid");
@@ -96,15 +86,13 @@ class EthereumWallet {
             implementation.privateKeyBytes, [mnemonic, hdPath])
         .then((privKeyBytes) {
       assert(privKeyBytes.length == 32, "Invalid private key length");
-      assert(
-          entityAddressHashBytes is! Uint8List ||
-              entityAddressHashBytes.length == 32,
+      assert(entityAddressHash is! Uint8List || entityAddressHash.length == 32,
           "Invalid entity address hash length");
 
       // XOR the 32 bytes of the generated private key using the entity address hash
-      if (entityAddressHashBytes is Uint8List) {
-        for (int i = entityAddressHashBytes.length - 1; i >= 0; i--) {
-          privKeyBytes[i] = privKeyBytes[i] ^ entityAddressHashBytes[i];
+      if (entityAddressHash is Uint8List) {
+        for (int i = entityAddressHash.length - 1; i >= 0; i--) {
+          privKeyBytes[i] = privKeyBytes[i] ^ entityAddressHash[i];
         }
         if (!implementation.isValidPrivateKey(privKeyBytes))
           throw Exception(

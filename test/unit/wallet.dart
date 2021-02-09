@@ -1,5 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'dart:typed_data';
+
+import 'package:convert/convert.dart';
 import 'package:dvote_crypto/dvote_crypto.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:hex/hex.dart';
 import 'package:web3dart/crypto.dart';
 
@@ -198,7 +201,8 @@ void hdWalletSync() {
     final entityAddress2 =
         "0x0000000000000000000000000000000000000000000000000000000000000000";
     final wallet2 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress2);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress2.replaceFirst("0x", "")))));
 
     expect(wallet2.privateKey,
         '0x1b3711c03353ecbbf7b686127e30d6a37a296ed797793498ef24c04504ca5048');
@@ -209,7 +213,8 @@ void hdWalletSync() {
     final entityAddress3 =
         "0x1111111111111111111111111111111111111111111111111111111111111111";
     final wallet3 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress3);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress3.replaceFirst("0x", "")))));
 
     expect(wallet3.privateKey,
         '0x0a2600d12242fdaae6a797036f21c7b26b387fc686682589fe35d15415db4159');
@@ -220,7 +225,8 @@ void hdWalletSync() {
     final entityAddress4 =
         "0x0123456789012345678901234567890123456789012345678901234567890123";
     final wallet4 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress4);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress4.replaceFirst("0x", "")))));
 
     expect(wallet4.privateKey,
         '0x1a1454a7ba52cffe903f87313b575fa2596c095e965a71ff6625e3006343516b');
@@ -232,7 +238,8 @@ void hdWalletSync() {
     final entityAddress5 =
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
     final wallet5 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress5);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress5.replaceFirst("0x", "")))));
 
     expect(wallet5.privateKey,
         '0xe4c8ee3fccac1344084979ed81cf295c85d691286886cb6710db3fbafb35afb7');
@@ -385,7 +392,8 @@ void hdWalletAsync() {
     final entityAddress2 =
         "0x0000000000000000000000000000000000000000000000000000000000000000";
     final wallet2 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress2);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress2.replaceFirst("0x", "")))));
 
     expect(await wallet2.privateKeyAsync,
         '0x1b3711c03353ecbbf7b686127e30d6a37a296ed797793498ef24c04504ca5048');
@@ -396,7 +404,8 @@ void hdWalletAsync() {
     final entityAddress3 =
         "0x1111111111111111111111111111111111111111111111111111111111111111";
     final wallet3 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress3);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress3.replaceFirst("0x", "")))));
 
     expect(await wallet3.privateKeyAsync,
         '0x0a2600d12242fdaae6a797036f21c7b26b387fc686682589fe35d15415db4159');
@@ -408,7 +417,8 @@ void hdWalletAsync() {
     final entityAddress4 =
         "0x0123456789012345678901234567890123456789012345678901234567890123";
     final wallet4 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress4);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress4.replaceFirst("0x", "")))));
 
     expect(await wallet4.privateKeyAsync,
         '0x1a1454a7ba52cffe903f87313b575fa2596c095e965a71ff6625e3006343516b');
@@ -422,7 +432,8 @@ void hdWalletAsync() {
     final entityAddress5 =
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
     final wallet5 = EthereumWallet.fromMnemonic(mnemonic,
-        entityAddressHash: entityAddress5);
+        entityAddressHash: keccak256(Uint8List.fromList(
+            hex.decode(entityAddress5.replaceFirst("0x", "")))));
 
     expect(await wallet5.privateKeyAsync,
         '0xe4c8ee3fccac1344084979ed81cf295c85d691286886cb6710db3fbafb35afb7');
