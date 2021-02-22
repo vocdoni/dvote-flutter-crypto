@@ -1,4 +1,6 @@
 // import 'dart:typed_data';
+import 'dart:typed_data';
+
 import 'package:dvote_crypto/util/asyncify.dart';
 
 // import '../dart/signature.dart' if (dart.library.io) '../native/signature.dart'
@@ -22,6 +24,19 @@ class Signature {
       {int chainId}) {
     return runAsync<String, String Function(String, String, int)>(
         implementation.signString, [payload, hexPrivateKey, chainId]);
+  }
+
+  /// Sign the given payload using the private key and return a hex signature
+  static String signBytes(Uint8List payload, String hexPrivateKey,
+      {int chainId}) {
+    return implementation.signBytes(payload, hexPrivateKey, chainId);
+  }
+
+  /// Sign the given payload using the private key and return a hex signature
+  static Future<String> signBytesAsync(Uint8List payload, String hexPrivateKey,
+      {int chainId}) {
+    return runAsync<String, String Function(Uint8List, String, int)>(
+        implementation.signBytes, [payload, hexPrivateKey, chainId]);
   }
 
   /// Recover the public key that signed the given message into the given signature

@@ -10,6 +10,43 @@ const SIGNATURE_MESSAGE_PREFIX = '\u0019Ethereum Signed Message:\n';
 // /////////////////////////////////////////////////////////////////////////////
 
 /// Sign the given message using the private key and return a hex signature
+String signBytes(Uint8List message, String hexPrivateKey, int chainId) {
+  if (message == null)
+    throw Exception("The message is empty");
+  else if (hexPrivateKey == null) throw Exception("The privateKey is empty");
+
+  try {
+    final packedPayload = _packBytesPayloadForSignature(message);
+
+    final privKeyBytes = hexPrivateKey.startsWith("0x")
+        ? Uint8List.fromList(HEX.decode(hexPrivateKey.substring(2)))
+        : Uint8List.fromList(HEX.decode(hexPrivateKey));
+
+    // print("Payload: $message");
+    // print("Length: ${message.length.toString()}");
+    // print("Packed: $packedPayload");
+
+    final signature =
+        crypto.sign(crypto.keccak256(packedPayload), privKeyBytes);
+
+    // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L26
+    // be aware that signature.v already is recovery + 27
+    final chainIdV =
+        chainId != null ? (signature.v - 27 + (chainId * 2 + 35)) : signature.v;
+
+    final r = _padUint8ListTo32(crypto.intToBytes(signature.r));
+    final s = _padUint8ListTo32(crypto.intToBytes(signature.s));
+    final v = crypto.intToBytes(BigInt.from(chainIdV));
+
+    final sigBytes = _uint8ListFromList(r + s + v);
+    // print("SigBytes: $sigBytes");
+    return "0x" + HEX.encode(sigBytes);
+  } catch (err) {
+    throw Exception("The signature could not be computed");
+  }
+}
+
+/// Sign the given message using the private key and return a hex signature
 String signString(String message, String hexPrivateKey, int chainId) {
   if (message == null)
     throw Exception("The message is empty");
@@ -191,6 +228,12 @@ Uint8List _packPayloadForSignature(String payload) {
   final prefix = SIGNATURE_MESSAGE_PREFIX + payloadBytes.length.toString();
   final prefixBytes = ascii.encode(prefix);
   return _uint8ListFromList(prefixBytes + payloadBytes);
+}
+
+Uint8List _packBytesPayloadForSignature(Uint8List payload) {
+  final prefix = SIGNATURE_MESSAGE_PREFIX + payload.length.toString();
+  final prefixBytes = ascii.encode(prefix);
+  return _uint8ListFromList(prefixBytes + payload);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
