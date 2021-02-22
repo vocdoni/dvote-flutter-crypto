@@ -1,6 +1,7 @@
 ## 0.10.2
 - Use compressed public keys by default
 - Generate Etherum wallets from Uint8List hashed entity address
+- Implement signBytes signature methods
   
 ## 0.10.1
 
